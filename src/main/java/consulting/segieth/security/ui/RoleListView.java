@@ -24,7 +24,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @PageTitle("Role List")
 @Menu(order = 0, icon = "vaadin:clipboard-check", title = "Role List")
 @AnonymousAllowed
-class RoleListView extends VerticalLayout {
+public class RoleListView extends VerticalLayout {
 
     private final RoleService roleService;
 

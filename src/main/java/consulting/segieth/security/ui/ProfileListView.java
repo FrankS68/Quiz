@@ -23,14 +23,13 @@ import com.vaadin.flow.router.Route;
 import consulting.segieth.base.ui.ViewToolbar;
 import consulting.segieth.security.ProfileService;
 import consulting.segieth.security.UserProfile;
-import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route("/profiles")
 @PageTitle("Profile List")
 @Menu(order = 0, icon = "vaadin:clipboard-check", title = "Profile List")
 @AnonymousAllowed
-class ProfileListView extends VerticalLayout {
+public class ProfileListView extends VerticalLayout {
 
     private final ProfileService profileService;
 
