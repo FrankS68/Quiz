@@ -44,7 +44,7 @@ public class UploadDialog extends Dialog {
 
             System.out.println(fileName + "\t" + mimeType);
             try {
-                byte[] data = memoryBuffer.getFileData().toBytes();
+                byte[] data = memoryBuffer.getFileData().getBytes();
                 ArrayList<LinkedTreeMap> importedArray = new Gson().fromJson(new String(data), ArrayList.class);
                 System.out.println("ArrayLength: " + importedArray.size());
                 importedArray.forEach(importedItem -> {
