@@ -10,8 +10,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
-import com.vaadin.flow.component.upload.UploadHandler;
-import com.vaadin.flow.server.streams.InMemoryUploadHandler;
+import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
@@ -35,34 +34,36 @@ public class UploadDialog extends Dialog {
         category.setPlaceholder("Category");
         category.setAriaLabel("Category");
         
-        InMemoryUploadHandler inMemoryHandler = UploadHandler
-                .inMemory((metadata, data) -> {
-                    String fileName = metadata.fileName();
-                    String mimeType = metadata.contentType();
-                    long contentLength = metadata.contentLength();
+        MemoryBuffer memoryBuffer = new MemoryBuffer();
+        upload = new Upload(memoryBuffer);
+        
+        upload.addSucceededListener(event -> {
+            String fileName = event.getFileName();
+            String mimeType = event.getMIMEType();
+            long contentLength = event.getContentLength();
 
-                    System.out.println(fileName + "\t" + mimeType);
-                    try {
-                        ArrayList<LinkedTreeMap> importedArray = new Gson().fromJson(new String(data), ArrayList.class);
-                        System.out.println("ArrayLength: " + importedArray.size());
-                        importedArray.forEach(importedItem -> {
-                            quizItemService.createQuizItem(
-                                importedItem.get("thema").toString(),
-                                importedItem.get("frage").toString(),
-                                importedItem.get("correct_answer").toString(),
-                                "",
-                                (ArrayList<String>) importedItem.get("antworten"),
-                                new ArrayList<String>());
-                            System.out.println(importedItem);
-                        });
-                        System.out.println("ArrayLength: " + importedArray.size());
-                        quizItemGrid.getDataProvider().refreshAll();
-                    }
-                    catch (Exception exc) {
-                        System.err.println(exc.getMessage() + "\n" + new String(data));
-                    }
+            System.out.println(fileName + "\t" + mimeType);
+            try {
+                byte[] data = memoryBuffer.getFileData().getBytes();
+                ArrayList<LinkedTreeMap> importedArray = new Gson().fromJson(new String(data), ArrayList.class);
+                System.out.println("ArrayLength: " + importedArray.size());
+                importedArray.forEach(importedItem -> {
+                    quizItemService.createQuizItem(
+                        importedItem.get("thema").toString(),
+                        importedItem.get("frage").toString(),
+                        importedItem.get("correct_answer").toString(),
+                        "",
+                        (ArrayList<String>) importedItem.get("antworten"),
+                        new ArrayList<String>());
+                    System.out.println(importedItem);
                 });
-        upload = new Upload(inMemoryHandler);
+                System.out.println("ArrayLength: " + importedArray.size());
+                quizItemGrid.getDataProvider().refreshAll();
+            }
+            catch (Exception exc) {
+                System.err.println(exc.getMessage());
+            }
+        });
         
         Button closeButton = new Button("Close", e -> close());
         getFooter().add(closeButton);
