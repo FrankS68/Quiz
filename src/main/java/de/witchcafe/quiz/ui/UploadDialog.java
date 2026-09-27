@@ -1,6 +1,9 @@
 package de.witchcafe.quiz.ui;
 
 import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.nimbusds.jose.shaded.gson.internal.LinkedTreeMap;
@@ -44,7 +47,15 @@ public class UploadDialog extends Dialog {
 
             System.out.println(fileName + "\t" + mimeType);
             try {
-                byte[] data = memoryBuffer.getFileData().getBytes();
+                InputStream inputStream = memoryBuffer.getInputStream();
+                ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+                byte[] dataBuffer = new byte[1024];
+                int bytesRead;
+                while ((bytesRead = inputStream.read(dataBuffer)) != -1) {
+                    buffer.write(dataBuffer, 0, bytesRead);
+                }
+                byte[] data = buffer.toByteArray();
+                
                 ArrayList<LinkedTreeMap> importedArray = new Gson().fromJson(new String(data), ArrayList.class);
                 System.out.println("ArrayLength: " + importedArray.size());
                 importedArray.forEach(importedItem -> {
