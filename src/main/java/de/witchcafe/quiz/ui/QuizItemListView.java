@@ -25,8 +25,6 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.streams.InMemoryUploadHandler;
-import com.vaadin.flow.server.streams.UploadHandler;
 
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
@@ -36,7 +34,7 @@ import com.vaadin.flow.server.auth.AnonymousAllowed;
 @PageTitle("QuestionItem List")
 @Menu(order = 0, icon = "vaadin:clipboard-check", title = "QuestionItem")
 @AnonymousAllowed
-class QuizItemListView extends VerticalLayout {
+public class QuizItemListView extends VerticalLayout {
 
     private final QuizItemService quizItemService;
 
@@ -97,133 +95,15 @@ class QuizItemListView extends VerticalLayout {
         add(quizItemGrid);
     }
 
-
-	public class UploadDialog extends Dialog{
-	    TextField category;
-	    Upload upload;
-	    
-	    public UploadDialog() {
-			super();
-
-		    setHeaderTitle("Upload Quiz Items");
-	        
-	        category = new TextField("Category");
-	        category.setPlaceholder("Category");
-	        category.setAriaLabel("Category");      
-	        
-	        InMemoryUploadHandler inMemoryHandler = UploadHandler
-	                .inMemory((metadata, data) -> {
-	                    // Get other information about the file.
-	                    String fileName = metadata.fileName();
-	                    String mimeType = metadata.contentType();
-	                    long contentLength = metadata.contentLength();
-
-	                    System.out.println(fileName + "\t" + mimeType);
-	                    try{
-	                    	ArrayList<LinkedTreeMap> importedArray = new Gson().fromJson(new String(data), ArrayList.class);
-	                    	System.out.println("ArrayLength: "+importedArray.size());
-	                    	importedArray.forEach(importedItem -> {
-                				quizItemService.createQuizItem(
-	                    				importedItem.get("thema").toString(),
-	                    				importedItem.get("frage").toString(), 
-	                    				importedItem.get("correct_answer").toString(),
-	                    				"",
-	                    				(ArrayList<String>) importedItem.get("antworten"),
-	                    				new ArrayList<String>());
-	                    		System.out.println(importedItem);	
-	                    	});
-	                    	System.out.println("ArrayLength: "+importedArray.size());
-	                    }
-	                    catch (Exception exc) {
-	                    	System.err.println(exc.getMessage()+"\n"+new String(data));
-//	                    	UploadI18N i18N = new UploadI18N();
-//	                    	i18N.getUploading().getError().setUnexpectedServerError(
-//	                    	        "File couldn't be uploaded, please try again later");
-//	                    	upload.setI18n(i18N);	                    	
-	                    }
-	                    // Do something with the file data...
-	                    // processFile(data, fileName);
-	                });
-	        upload = new Upload(inMemoryHandler);
-		    
-		    Button closeButton = new Button("Close", e -> close());
-	        getFooter().add(closeButton);
-	        
-	        VerticalLayout dialogLayout = new VerticalLayout(category,upload);
-	        dialogLayout.setPadding(false);
-	        dialogLayout.setSpacing(false);
-	        dialogLayout.getStyle().set("width", "22em").set("max-width", "100%");
-	        add(dialogLayout);
-	    }
-	}
-
-	public class EditDialog extends Dialog{
-	    TextField category;
-	    TextField question;
-	    TextField answer;
-	    TextArea description;
-
-	    public EditDialog() {
-			super();
-
-			category = new TextField("Category");
-	        category.setPlaceholder("Category");
-	        category.setAriaLabel("Category");
-	        
-	        question = new TextField("Question");
-	        question.setPlaceholder("Question");
-	        question.setAriaLabel("Question");
-	        
-	        answer = new TextField("Answer");
-	        answer.setPlaceholder("Answer");
-	        answer.setAriaLabel("Answer");
-	        
-	        description = new TextArea("Description");
-	        description.setMinRows(4);
-	        description.setMaxRows(8);
-	        description.setPlaceholder("What is that quiz item meant for?");
-	        description.setAriaLabel("QuizItem description");
-	        description.setMaxLength(QuizItem.DESCRIPTION_MAX_LENGTH);
-	        description.setMinWidth("20em");
-
-	        VerticalLayout dialogLayout = new VerticalLayout(category,question,answer,description);
-	        dialogLayout.setPadding(false);
-	        dialogLayout.setSpacing(false);
-	        dialogLayout.getStyle().set("width", "22em").set("max-width", "100%");
-
-	        setHeaderTitle("New Quiz Item");
-
-	        add(dialogLayout);
-			Button saveButton = new Button("Save", e -> {
-		    	quizItemService.createQuizItem(category.getValue(),question.getValue(),answer.getValue(),description.getValue());
-		        quizItemGrid.getDataProvider().refreshAll();
-		        category.clear();
-		        question.clear();
-		        answer.clear();
-		        description.clear();
-		        Notification.show("QuizItem added", 3000, Notification.Position.BOTTOM_END)
-		                .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-		        close();
-		    });
-			saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-
-	        Button cancelButton = new Button("Cancel", e -> close());
-	        getFooter().add(cancelButton);
-	        getFooter().add(saveButton);
-
-
-		}
-	}
-
-	private void createEditDialog() {
-        EditDialog editDialog = new EditDialog();
+    private void createEditDialog() {
+        EditDialog editDialog = new EditDialog(quizItemService, quizItemGrid);
         editBtn = new Button("Edit", event -> editDialog.open());
         editBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 		add(editDialog, editBtn);
 	}
 	
 	private void createUploadDialog() {
-	    Dialog uploadDialog = new UploadDialog();
+	    UploadDialog uploadDialog = new UploadDialog(quizItemService, quizItemGrid);
         uploadBtn = new Button("Upload", event -> uploadDialog.open());
         uploadBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
         add(uploadDialog, uploadBtn);
