@@ -18,12 +18,12 @@ import com.vaadin.flow.router.Route;
 import consulting.segieth.base.ui.ViewToolbar;
 import consulting.segieth.security.Role;
 import consulting.segieth.security.RoleService;
-import jakarta.annotation.security.RolesAllowed;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
 @Route("/roles")
 @PageTitle("Role List")
 @Menu(order = 0, icon = "vaadin:clipboard-check", title = "Role List")
-@RolesAllowed("SecurityManager")
+@AnonymousAllowed
 class RoleListView extends VerticalLayout {
 
     private final RoleService roleService;
