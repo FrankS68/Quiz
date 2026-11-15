@@ -26,8 +26,12 @@ import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+import com.vaadin.flow.spring.security.AuthenticationContext;
+
+import de.witchcafe.auth.AppRoles;
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
+import de.witchcafe.quiz.QuizRoles;
 import jakarta.annotation.security.PermitAll;
 
 @Route("/questionitems")
@@ -42,8 +46,10 @@ public class QuizItemListView extends VerticalLayout {
     Button uploadBtn;
     final Grid<QuizItem> quizItemGrid;
 
-    QuizItemListView(QuizItemService quizItemService) {
+    QuizItemListView(QuizItemService quizItemService, AuthenticationContext authenticationContext) {
         this.quizItemService = quizItemService;
+        // Bearbeiten und Hochladen nur fuer Editoren und Admins (siehe auch QuizItemService)
+        boolean canEdit = authenticationContext.hasAnyRole(AppRoles.ADMIN, QuizRoles.EDITOR);
 
         /*
         category = new TextField();
@@ -68,10 +74,11 @@ public class QuizItemListView extends VerticalLayout {
         // createBtn = new Button("Create", event -> createQuizItem());
         // createBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        createEditDialog();
-        createUploadDialog();
-
         quizItemGrid = new Grid<>();
+        if (canEdit) {
+            createEditDialog();
+            createUploadDialog();
+        }
         quizItemGrid.setItems(query -> quizItemService.list(toSpringPageRequest(query)).stream());
         quizItemGrid.addColumn(QuizItem::getCategory).setHeader("Category");
         quizItemGrid.addColumn(QuizItem::getQuestion).setHeader("Question");
