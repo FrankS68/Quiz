@@ -3,9 +3,10 @@
 # .env (nicht eingecheckt):
 #   COMPOSE_PROJECT_NAME=vaadinquiz
 #   COMPOSE_FILE=compose.pi.yml
-#   GITHUB_TOKEN_FILE=../knownet-vaadin/.github_token   # optional, Default ./.github_token
 # config/application-prod.properties (chmod 600, nicht eingecheckt):
 #   OAuth-Zugangsdaten, social.crypto-key, witch-auth.first-admin-email
+# .github_token (chmod 600, nicht eingecheckt): GitHub-Token mit read:packages. Muss im
+#   Projektordner liegen - Docker Buildx verweigert Secrets ausserhalb des Build-Kontexts.
 # Ausrollen: ./deploy.sh <branch|tag>
 services:
   quiz:

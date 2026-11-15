@@ -8,7 +8,7 @@
 #
 # Erwartet im Verzeichnis des Skripts:
 #   .env      COMPOSE_PROJECT_NAME, COMPOSE_FILE (compose.pi.yml bzw. compose.prod.yml),
-#             optional HEALTH_URL und GITHUB_TOKEN_FILE
+#             optional HEALTH_URL (und GITHUB_TOKEN_FILE, muss im Projektordner liegen)
 #   config/application-prod.properties   OAuth-Zugangsdaten, social.crypto-key, erster Admin
 #   GitHub-Token (read:packages) fuer den Build, Default ./.github_token
 # Umgebungsvariablen: HEALTH_URL (Default aus .env, sonst http://localhost:8083),
