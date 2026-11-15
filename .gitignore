@@ -26,3 +26,10 @@ src/main/bundles/
 
 # GitHub-Token fuer den Docker-Build
 .github_token
+
+# Server-Deployment (deploy.sh): Secrets, Logs, Sperre
+config/
+.env
+deploy.log
+deploy-history.tsv
+.deploy.lock

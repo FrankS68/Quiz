@@ -21,3 +21,9 @@ spring.security.oauth2.client.registration.github.scope=read:user,user:email
 #spring.security.oauth2.client.registration.azure.client-secret=
 #spring.security.oauth2.client.registration.azure.scope=openid, profile, email, User.Read
 #spring.security.oauth2.client.provider.azure.issuer-uri=https://login.microsoftonline.com/<tenant-id>/v2.0
+
+# ---------------------------------------------------------------------------
+# witch-social: Schluessel zum Verschluesseln der Zugangstoken (Bluesky, Mastodon)
+# Erzeugen z.B. mit: openssl rand -base64 32 - danach nicht mehr aendern.
+# ---------------------------------------------------------------------------
+social.crypto-key=

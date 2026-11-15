@@ -1,0 +1,37 @@
+# Prod-Deployment auf IONOS (claudine). nginx (quiz.segieth.cologne, Wildcard-Zertifikat
+# *.segieth.cologne) leitet per HTTPS auf 127.0.0.1:8084 weiter, siehe deploy/nginx-quiz.segieth.cologne.conf.
+#
+# .env (nicht eingecheckt):
+#   COMPOSE_PROJECT_NAME=vaadinquiz
+#   COMPOSE_FILE=compose.prod.yml
+#   HEALTH_URL=http://localhost:8084
+#   GITHUB_TOKEN_FILE=../knownet-vaadin/.github_token   # optional, Default ./.github_token
+# config/application-prod.properties (chmod 600, nicht eingecheckt):
+#   OAuth-Zugangsdaten, social.crypto-key, witch-auth.first-admin-email
+# Ausrollen: ./deploy.sh <tag>
+services:
+  quiz:
+    image: vaadinquiz:latest
+    build:
+      context: .
+      secrets:
+        - github_token
+    container_name: quiz-app
+    ports:
+      # nur lokal: von aussen ausschliesslich ueber nginx/HTTPS erreichbar
+      - "127.0.0.1:8084:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      # OAuth-Redirects (Mastodon) und Bluesky-Login brauchen die oeffentliche HTTPS-Adresse
+      - PUBLIC_BASE_URL=https://quiz.segieth.cologne
+    volumes:
+      - ./config:/app/config      # application-prod.properties
+      - quiz-data:/app/data       # H2-Datenbank (Fragen, Ergebnisse, Benutzer, Konten)
+    restart: unless-stopped
+
+volumes:
+  quiz-data:
+
+secrets:
+  github_token:
+    file: ${GITHUB_TOKEN_FILE:-./.github_token}

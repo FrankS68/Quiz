@@ -2,12 +2,12 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <!-- witch-parent bringt Spring Boot, Vaadin, Security/OAuth2, JPA + H2, witch-auth
-         sowie Plugin-Konfiguration (inkl. Eclipse/m2e-Workarounds) und Repositories mit
-         (siehe Repo witch-base). -->
+    <!-- witch-social-parent bringt alles aus witch-parent (Spring Boot, Vaadin, Security/OAuth2,
+         JPA + H2, witch-auth, Plugin-Konfiguration inkl. Eclipse/m2e-Workarounds, Repositories)
+         und dazu witch-social-core: Konten verbinden, Beitraege posten, Feeds (siehe Repo witch-social). -->
     <parent>
         <groupId>de.witchcafe</groupId>
-        <artifactId>witch-parent</artifactId>
+        <artifactId>witch-social-parent</artifactId>
         <version>1.0.0</version>
         <relativePath/>
     </parent>
@@ -22,6 +22,15 @@
         <dependency>
             <groupId>de.witchcafe</groupId>
             <artifactId>witch-ui</artifactId>
+        </dependency>
+        <!-- Social-Netzwerke: nur die, die das Quiz koennen soll -->
+        <dependency>
+            <groupId>de.witchcafe</groupId>
+            <artifactId>witch-bluesky</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>de.witchcafe</groupId>
+            <artifactId>witch-mastodon</artifactId>
         </dependency>
     </dependencies>
 
@@ -38,7 +47,7 @@
         </plugins>
     </build>
 
-    <!-- Noetig, damit Maven witch-parent selbst findet (Token in ~/.m2/settings.xml, server-id "github") -->
+    <!-- Noetig, damit Maven witch-social-parent selbst findet (Token in ~/.m2/settings.xml, server-id "github") -->
     <repositories>
         <repository>
             <id>github</id>
