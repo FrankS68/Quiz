@@ -28,12 +28,12 @@ import com.vaadin.flow.router.Route;
 
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.security.PermitAll;
 
 @Route("/questionitems")
 @PageTitle("QuestionItem List")
 @Menu(order = 0, icon = "vaadin:clipboard-check", title = "QuestionItem")
-@AnonymousAllowed
+@PermitAll
 public class QuizItemListView extends VerticalLayout {
 
     private final QuizItemService quizItemService;

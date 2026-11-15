@@ -1,30 +1,33 @@
-FROM ghcr.io/jqlang/jq:latest AS jq-stage
-
-FROM eclipse-temurin:21-jdk AS build
-COPY --from=jq-stage /jq /usr/bin/jq
-# Test that jq works after copying
-RUN jq --version
-
-ENV HOME=/app
-RUN mkdir -p $HOME
-WORKDIR $HOME
-COPY . $HOME
-
-# If you have a Vaadin Pro key, pass it as a secret with id "proKey":
+# syntax=docker/dockerfile:1
 #
-#   $ docker build --secret id=proKey,src=$HOME/.vaadin/proKey .
+# Build:  docker build --secret id=github_token,src=.github_token -t vaadinquiz:latest .
+# Das GitHub-Token (classic, Scope read:packages) wird fuer witch-parent, witch-ui und
+# witch-auth aus GitHub Packages gebraucht. Es wird als BuildKit-Secret eingebunden und
+# landet weder im Image noch im Build-Cache.
 #
-# If you have a Vaadin Offline key, pass it as a secret with id "offlineKey":
-#
-#   $ docker build --secret id=offlineKey,src=$HOME/.vaadin/offlineKey .
+# Start:  docker run -p 8080:8080 -v quiz-data:/app/data \
+#           -e SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_ID=... \
+#           -e SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_GITHUB_CLIENT_SECRET=... \
+#           -e FIRST_ADMIN_EMAIL=... vaadinquiz:latest
 
-RUN --mount=type=cache,target=/root/.m2 \
-    --mount=type=secret,id=proKey \
-    --mount=type=secret,id=offlineKey \
-    sh -c 'PRO_KEY=$(jq -r ".proKey // empty" /run/secrets/proKey 2>/dev/null || echo "") && \
-    OFFLINE_KEY=$(cat /run/secrets/offlineKey 2>/dev/null || echo "") && \
-    ./mvnw clean package -DskipTests -Dvaadin.proKey=${PRO_KEY} -Dvaadin.offlineKey=${OFFLINE_KEY}'
+# ---- Build-Stage ----
+FROM maven:3.9-eclipse-temurin-21 AS build
+WORKDIR /app
 
-FROM eclipse-temurin:21-jre-alpine
+COPY pom.xml .
+COPY src ./src
+RUN --mount=type=cache,target=/root/.m2/repository \
+    --mount=type=secret,id=github_token,required=true \
+    mkdir -p /root/.m2 \
+    && printf '<settings><servers><server><id>github</id><username>token</username><password>%s</password></server></servers></settings>' \
+         "$(tr -d '\r\n' < /run/secrets/github_token)" > /tmp/settings.xml \
+    && mvn -s /tmp/settings.xml package -DskipTests -B -q \
+    && rm /tmp/settings.xml
+
+# ---- Runtime-Stage ----
+FROM eclipse-temurin:21-jre-jammy
+WORKDIR /app
 COPY --from=build /app/target/*.jar app.jar
-ENTRYPOINT ["java", "-jar", "/app.jar", "--spring.profiles.active=prod"]
+
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]

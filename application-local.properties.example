@@ -1,0 +1,23 @@
+# Kopieren nach application-local.properties (wird nicht eingecheckt) und Werte eintragen.
+# Nur Provider eintragen, die genutzt werden - mindestens einer ist noetig.
+
+witch-auth.first-admin-email=
+
+spring.security.oauth2.client.registration.google.client-id=
+spring.security.oauth2.client.registration.google.client-secret=
+spring.security.oauth2.client.registration.google.scope=openid,profile,email
+
+spring.security.oauth2.client.registration.github.provider=github
+spring.security.oauth2.client.registration.github.client-id=
+spring.security.oauth2.client.registration.github.client-secret=
+spring.security.oauth2.client.registration.github.scope=read:user,user:email
+
+#spring.security.oauth2.client.registration.facebook.client-id=
+#spring.security.oauth2.client.registration.facebook.client-secret=
+#spring.security.oauth2.client.registration.facebook.scope=email,public_profile
+
+# Das Wort nach 'registration.' definiert die ID
+#spring.security.oauth2.client.registration.azure.client-id=
+#spring.security.oauth2.client.registration.azure.client-secret=
+#spring.security.oauth2.client.registration.azure.scope=openid, profile, email, User.Read
+#spring.security.oauth2.client.provider.azure.issuer-uri=https://login.microsoftonline.com/<tenant-id>/v2.0

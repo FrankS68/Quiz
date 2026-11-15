@@ -13,8 +13,7 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
-import consulting.segieth.security.SecurityService;
-import consulting.segieth.security.UserProfile;
+import de.witchcafe.auth.CurrentUser;
 import de.witchcafe.quiz.Quiz;
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
@@ -24,7 +23,7 @@ public class QuizDialog extends Dialog {
 
     private final QuizService quizService;
     private final QuizItemService quizItemService;
-    private final SecurityService securityService;
+    private final CurrentUser currentUser;
     private final Grid<Quiz> quizGrid;
 
     private HashMap<QuizItem, String> result = new HashMap<>();
@@ -35,11 +34,11 @@ public class QuizDialog extends Dialog {
     private Integer quizIndex = 0;
 
     public QuizDialog(String category, QuizService quizService, 
-                     QuizItemService quizItemService, SecurityService securityService,
+                     QuizItemService quizItemService, CurrentUser currentUser,
                      Grid<Quiz> quizGrid) {
         this.quizService = quizService;
         this.quizItemService = quizItemService;
-        this.securityService = securityService;
+        this.currentUser = currentUser;
         this.quizGrid = quizGrid;
 
         quizItems = quizItemService.findByCategory(category);
@@ -53,7 +52,7 @@ public class QuizDialog extends Dialog {
         Button endButton = new Button("End", e -> {
             quizService.createQuiz(
                 category,
-                securityService.getUserProfile(),
+                currentUser.get().orElse(null),
                 new Gson().toJson(result));
             quizGrid.getDataProvider().refreshAll();
             Notification.show("Quiz added", 3000, Notification.Position.BOTTOM_END)
@@ -80,7 +79,7 @@ public class QuizDialog extends Dialog {
             if (++quizIndex >= quizItems.size()) {
                 quizService.createQuiz(
                     category,
-                    securityService.getUserProfile(),
+                    currentUser.get().orElse(null),
                     new Gson().toJson(result));
                 quizGrid.getDataProvider().refreshAll();
                 Notification.show("Quiz added", 3000, Notification.Position.BOTTOM_END)

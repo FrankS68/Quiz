@@ -1,4 +1,4 @@
-package consulting.segieth;
+package de.witchcafe.quiz;
 
 import com.vaadin.flow.theme.lumo.Lumo;
 import org.springframework.boot.SpringApplication;
@@ -15,17 +15,15 @@ import com.vaadin.flow.spring.annotation.EnableVaadin;
 @StyleSheet(Lumo.STYLESHEET) // Use Aura.STYLESHEET to use Aura instead
 @StyleSheet(Lumo.UTILITY_STYLESHEET)
 @StyleSheet("styles.css") // Your custom styles
-@ComponentScan(basePackages = {
-	    "consulting.segieth",          // Dein Hauptpaket
-	    "de.witchcafe"   // Das Paket des externen Services
-	})
-@EnableVaadin({"consulting.segieth", "de.witchcafe"})
-@EnableJpaRepositories({"consulting.segieth", "de.witchcafe"}) // Findet das Repository-Interface
-@EntityScan({"consulting.segieth", "de.witchcafe"}) // Findet die @Entity Klassen
-public class Application implements AppShellConfigurator {
+// "de.witchcafe" deckt das Quiz, witch-auth (de.witchcafe.auth) und witch-ui (de.witchcafe.ui) ab
+@ComponentScan(basePackages = "de.witchcafe")
+@EnableVaadin("de.witchcafe")
+@EnableJpaRepositories("de.witchcafe") // Quiz-Repositories und witch-auth-Benutzerdaten
+@EntityScan("de.witchcafe") // Quiz-Entities und witch-auth-Benutzerdaten
+public class QuizApplication implements AppShellConfigurator {
 
     public static void main(String[] args) {
-        SpringApplication.run(Application.class, args);
+        SpringApplication.run(QuizApplication.class, args);
     }
 
 }

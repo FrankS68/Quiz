@@ -28,25 +28,27 @@ import com.vaadin.flow.dom.Style;
 import com.vaadin.flow.router.Menu;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.router.RouteAlias;
 
-import consulting.segieth.base.ui.ViewToolbar;
-import consulting.segieth.security.SecurityService;
-import consulting.segieth.security.UserProfile;
+import de.witchcafe.ui.ViewToolbar;
+import de.witchcafe.auth.CurrentUser;
+import de.witchcafe.auth.domain.AppUser;
 import de.witchcafe.quiz.Quiz;
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
 import de.witchcafe.quiz.QuizService;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
+import jakarta.annotation.security.PermitAll;
 
 @Route("/quizzes")
+@RouteAlias("") // Startseite (Ziel nach dem witch-auth-Login)
 @PageTitle("Quiz List")
 @Menu(order = 0, icon = "vaadin:clipboard-check", title = "Quiz List")
-@AnonymousAllowed
+@PermitAll
 public class QuizListView extends VerticalLayout {
 
     private final QuizService quizService;
     private final QuizItemService quizItemService;
-    private final SecurityService securityService;
+    private final CurrentUser currentUser;
 
     final Button createBtn;
     final Grid<Quiz> quizGrid;
@@ -54,10 +56,10 @@ public class QuizListView extends VerticalLayout {
     QuizListView(
     		QuizService quizService,
     		QuizItemService quizItemService,
-    		SecurityService securityService) {
+    		CurrentUser currentUser) {
         this.quizService = quizService;
         this.quizItemService = quizItemService;
-        this.securityService = securityService;
+        this.currentUser = currentUser;
 
 
         MenuBar createMenu = buildQuizMenu(quizItemService);
@@ -67,12 +69,14 @@ public class QuizListView extends VerticalLayout {
         quizGrid = new Grid<>();
         quizGrid.setItems(query -> quizService.list(toSpringPageRequest(query)).stream());
         quizGrid.addColumn(Quiz::getCategory).setHeader("Category");
-        quizGrid.addColumn(Quiz::getUser).setHeader("User");
         quizGrid.addComponentColumn(item -> {
-            Span userSpan = new Span(item.getUser().getName());
-            userSpan.setTitle(item.getUser().getProvider());
+            AppUser user = item.getUser();
+            Span userSpan = new Span(user == null ? "Gast" : user.getName());
+            if (user != null) {
+                userSpan.setTitle(user.getProvider());
+            }
             return userSpan;
-        }).setHeader("Aktionen");
+        }).setHeader("User");
 
         quizGrid.setEmptyStateText("You have no quiz to review");
         quizGrid.setSizeFull();
@@ -103,7 +107,7 @@ public class QuizListView extends VerticalLayout {
 	}
 
     private void startQuiz(String category) {
-    	new QuizDialog(category, quizService, quizItemService, securityService, quizGrid).open();
+    	new QuizDialog(category, quizService, quizItemService, currentUser, quizGrid).open();
     }
 
 }

@@ -12,3 +12,17 @@
 node_modules/
 src/main/frontend/generated/
 vite.generated.ts
+
+# Lokale Secrets (OAuth-Zugangsdaten usw.), siehe application-local.properties.example
+application-local.properties
+
+# H2-Datenbankdatei (Fragen, Ergebnisse, Benutzer)
+data/
+
+# Vaadin / Eclipse
+.vaadin/
+.eclipse/
+src/main/bundles/
+
+# GitHub-Token fuer den Docker-Build
+.github_token
