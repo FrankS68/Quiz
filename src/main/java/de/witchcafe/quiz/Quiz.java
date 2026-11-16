@@ -3,7 +3,7 @@ package de.witchcafe.quiz;
 
 import org.jspecify.annotations.Nullable;
 
-import consulting.segieth.security.UserProfile;
+import de.witchcafe.auth.domain.AppUser;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -30,7 +30,7 @@ public class Quiz {
 
     @ManyToOne(cascade = CascadeType.DETACH)
     @JoinColumn(name = "user_id")
-    private UserProfile user = null;
+    private @Nullable AppUser user = null;
 
     @Column(name = "publish", nullable = false)
     private Boolean publish = true;
@@ -44,7 +44,7 @@ public class Quiz {
     protected Quiz() { // To keep Hibernate happy
     }
 
-    public Quiz(String category, UserProfile user) {
+    public Quiz(String category, @Nullable AppUser user) {
     	setCategory(category);
     	setUser(user);
     }
@@ -91,11 +91,11 @@ public class Quiz {
 		this.category = category;
 	}
 
-	public UserProfile getUser() {
+	public @Nullable AppUser getUser() {
 		return user;
 	}
 
-	public void setUser(UserProfile user) {
+	public void setUser(@Nullable AppUser user) {
 		this.user = user;
 	}
 

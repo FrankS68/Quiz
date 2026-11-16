@@ -1,0 +1,33 @@
+# QA-Deployment auf Spiekeroog (claudine, Raspberry Pi). Erreichbar unter http://spiekeroog.fritz.box:8083
+#
+# .env (nicht eingecheckt):
+#   COMPOSE_PROJECT_NAME=vaadinquiz
+#   COMPOSE_FILE=compose.pi.yml
+# config/application-prod.properties (chmod 600, nicht eingecheckt):
+#   OAuth-Zugangsdaten, social.crypto-key, witch-auth.first-admin-email
+# .github_token (chmod 600, nicht eingecheckt): GitHub-Token mit read:packages. Muss im
+#   Projektordner liegen - Docker Buildx verweigert Secrets ausserhalb des Build-Kontexts.
+# Ausrollen: ./deploy.sh <branch|tag>
+services:
+  quiz:
+    image: vaadinquiz:latest
+    build:
+      context: .
+      secrets:
+        - github_token
+    container_name: quiz-app
+    ports:
+      - "8083:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+    volumes:
+      - ./config:/app/config      # application-prod.properties
+      - quiz-data:/app/data       # H2-Datenbank (Fragen, Ergebnisse, Benutzer, Konten)
+    restart: unless-stopped
+
+volumes:
+  quiz-data:
+
+secrets:
+  github_token:
+    file: ${GITHUB_TOKEN_FILE:-./.github_token}
