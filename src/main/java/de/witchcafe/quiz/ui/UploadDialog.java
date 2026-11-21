@@ -1,6 +1,7 @@
 package de.witchcafe.quiz.ui;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -10,13 +11,18 @@ import com.nimbusds.jose.shaded.gson.internal.LinkedTreeMap;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.component.upload.Upload;
 import com.vaadin.flow.component.upload.receivers.MemoryBuffer;
 
+import de.witchcafe.quiz.FrageImport;
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
+import de.witchcafe.quiz.QuizItemService.ImportErgebnis;
+import de.witchcafe.ui.Responsive;
 
 public class UploadDialog extends Dialog {
 
@@ -56,19 +62,22 @@ public class UploadDialog extends Dialog {
                 }
                 byte[] data = buffer.toByteArray();
                 
-                ArrayList<LinkedTreeMap> importedArray = new Gson().fromJson(new String(data), ArrayList.class);
-                System.out.println("ArrayLength: " + importedArray.size());
-                importedArray.forEach(importedItem -> {
-                    quizItemService.createQuizItem(
-                        importedItem.get("thema").toString(),
-                        importedItem.get("frage").toString(),
-                        importedItem.get("correct_answer").toString(),
-                        "",
-                        (ArrayList<String>) importedItem.get("antworten"),
-                        new ArrayList<String>());
-                    System.out.println(importedItem);
-                });
-                System.out.println("ArrayLength: " + importedArray.size());
+                ArrayList<LinkedTreeMap> importedArray = new Gson().fromJson(new String(data, java.nio.charset.StandardCharsets.UTF_8), ArrayList.class);
+                List<FrageImport> fragen = importedArray.stream()
+                        .map(m -> new FrageImport(
+                                text(m.get("thema")),
+                                text(m.get("frage")),
+                                m.get("antworten") instanceof List<?> l ? l.stream().map(String::valueOf).toList() : List.of(),
+                                text(m.get("correct_answer")),
+                                text(m.get("beschreibung"))))
+                        .toList();
+                ImportErgebnis ergebnis = quizItemService.importiere(fragen);
+                ergebnis.fehler().forEach(System.err::println);
+                Notification.show(ergebnis.angelegt() + " Fragen importiert"
+                                + (ergebnis.fehler().isEmpty() ? "" : ", " + ergebnis.fehler().size() + " Fehler"),
+                        4000, Notification.Position.BOTTOM_END)
+                        .addThemeVariants(ergebnis.fehler().isEmpty()
+                                ? NotificationVariant.LUMO_SUCCESS : NotificationVariant.LUMO_WARNING);
                 quizItemGrid.getDataProvider().refreshAll();
             }
             catch (Exception exc) {
@@ -82,7 +91,12 @@ public class UploadDialog extends Dialog {
         VerticalLayout dialogLayout = new VerticalLayout(category, upload);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
-        dialogLayout.getStyle().set("width", "22em").set("max-width", "100%");
+        category.setWidthFull();
         add(dialogLayout);
+        Responsive.dialog(this, "28em");
+    }
+
+    private static String text(Object o) {
+        return o == null ? null : o.toString();
     }
 }

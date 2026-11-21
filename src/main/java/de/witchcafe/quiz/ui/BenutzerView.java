@@ -23,6 +23,7 @@ import de.witchcafe.auth.AppRoles;
 import de.witchcafe.auth.domain.AppUser;
 import de.witchcafe.auth.domain.UserManagementService;
 import de.witchcafe.quiz.QuizRoles;
+import de.witchcafe.ui.Responsive;
 import de.witchcafe.ui.ViewToolbar;
 import jakarta.annotation.security.RolesAllowed;
 
@@ -52,8 +53,8 @@ public class BenutzerView extends VerticalLayout {
 
         grid.addComponentColumn(this::avatar).setWidth("50px").setFlexGrow(0);
         grid.addColumn(AppUser::getName).setHeader("Name").setSortable(true).setAutoWidth(true);
-        grid.addColumn(AppUser::getEmail).setHeader("E-Mail").setSortable(true).setAutoWidth(true);
-        grid.addColumn(AppUser::getProvider).setHeader("Provider").setAutoWidth(true);
+        var emailSpalte = grid.addColumn(AppUser::getEmail).setHeader("E-Mail").setSortable(true).setAutoWidth(true);
+        var providerSpalte = grid.addColumn(AppUser::getProvider).setHeader("Provider").setAutoWidth(true);
 
         grid.addComponentColumn(u -> {
             Span badge = new Span(u.getRole());
@@ -68,7 +69,7 @@ public class BenutzerView extends VerticalLayout {
             return badge;
         }).setHeader("Status").setAutoWidth(true);
 
-        grid.addColumn(u -> u.getLastLoginAt() != null ? FMT.format(u.getLastLoginAt()) : "-")
+        var loginSpalte = grid.addColumn(u -> u.getLastLoginAt() != null ? FMT.format(u.getLastLoginAt()) : "-")
                 .setHeader("Letzter Login").setAutoWidth(true);
 
         grid.addComponentColumn(this::rollenButtons)
@@ -77,6 +78,7 @@ public class BenutzerView extends VerticalLayout {
                 .setHeader("Sperren").setAutoWidth(true).setFlexGrow(0);
 
         grid.setSizeFull();
+        Responsive.hideOnMobile(grid, emailSpalte, providerSpalte, loginSpalte);
         add(new ViewToolbar("Benutzer"), grid);
         aktualisiere();
     }
@@ -97,6 +99,7 @@ public class BenutzerView extends VerticalLayout {
     private HorizontalLayout rollenButtons(AppUser u) {
         HorizontalLayout layout = new HorizontalLayout();
         layout.setSpacing(true);
+        layout.setWrap(true);
         for (String rolle : ROLLEN) {
             if (!rolle.equals(u.getRole())) {
                 Button btn = new Button("→ " + rolle, e -> bestaetigen(

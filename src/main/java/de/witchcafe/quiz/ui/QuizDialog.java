@@ -18,6 +18,7 @@ import de.witchcafe.quiz.Quiz;
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
 import de.witchcafe.quiz.QuizService;
+import de.witchcafe.ui.Responsive;
 
 public class QuizDialog extends Dialog {
 
@@ -95,7 +96,7 @@ public class QuizDialog extends Dialog {
         VerticalLayout dialogLayout = new VerticalLayout(questionSpan, answerSpan);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
-        dialogLayout.getStyle().set("width", "22em").set("max-width", "100%");
         add(dialogLayout);
+        Responsive.dialog(this, "28em");
     }
 }

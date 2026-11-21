@@ -16,6 +16,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 import com.vaadin.flow.component.textfield.TextField;
@@ -32,6 +33,7 @@ import de.witchcafe.auth.AppRoles;
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
 import de.witchcafe.quiz.QuizRoles;
+import de.witchcafe.ui.Responsive;
 import jakarta.annotation.security.PermitAll;
 
 @Route("/questionitems")
@@ -75,15 +77,19 @@ public class QuizItemListView extends VerticalLayout {
         // createBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         quizItemGrid = new Grid<>();
+        HorizontalLayout aktionen = new HorizontalLayout();
         if (canEdit) {
             createEditDialog();
             createUploadDialog();
+            aktionen.add(editBtn, uploadBtn);
         }
         quizItemGrid.setItems(query -> quizItemService.list(toSpringPageRequest(query)).stream());
         quizItemGrid.addColumn(QuizItem::getCategory).setHeader("Category");
         quizItemGrid.addColumn(QuizItem::getQuestion).setHeader("Question");
         // quizItemGrid.addColumn(QuizItem::getAnswer).setHeader("Answer");
-        quizItemGrid.addColumn(QuizItem::getDescription).setHeader("Description");
+        var descriptionColumn = quizItemGrid.addColumn(QuizItem::getDescription).setHeader("Description");
+        // Auf dem Handy nur Kategorie und Frage
+        Responsive.hideOnMobile(quizItemGrid, descriptionColumn);
 
         quizItemGrid.setEmptyStateText("No Items to be quizzed");
         quizItemGrid.setSizeFull();
@@ -99,6 +105,10 @@ public class QuizItemListView extends VerticalLayout {
         //		ViewToolbar.group(category,question,answer,description, 
         		createBtn));
         		*/
+        if (canEdit) {
+            aktionen.setPadding(true);
+            add(Responsive.wrappingRow(aktionen));
+        }
         add(quizItemGrid);
     }
 
@@ -106,14 +116,14 @@ public class QuizItemListView extends VerticalLayout {
         EditDialog editDialog = new EditDialog(quizItemService, quizItemGrid);
         editBtn = new Button("Edit", event -> editDialog.open());
         editBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		add(editDialog, editBtn);
+		add(editDialog);
 	}
 	
 	private void createUploadDialog() {
 	    UploadDialog uploadDialog = new UploadDialog(quizItemService, quizItemGrid);
         uploadBtn = new Button("Upload", event -> uploadDialog.open());
         uploadBtn.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        add(uploadDialog, uploadBtn);
+        add(uploadDialog);
 	}
 
     /*

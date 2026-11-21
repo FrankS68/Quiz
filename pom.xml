@@ -17,6 +17,13 @@
     <name>Quiz</name>
     <description>Quiz mit Fragenkatalogen (JSON-Upload) und Ergebnissen je Benutzer</description>
 
+    <properties>
+        <!-- witch-social-parent 1.0.0 haengt noch an witch-parent 1.0.0; witch-ui 1.1.0 bringt die
+             Smartphone-Helfer (Responsive, witch-ui.css) - wie knownet mit witch-parent 1.1.0.
+             Entfaellt, sobald es ein witch-social-parent auf Basis von witch-parent 1.1.0 gibt. -->
+        <witch-ui.version>1.1.0</witch-ui.version>
+    </properties>
+
     <dependencies>
         <!-- Gemeinsames Layout, Menue, ViewToolbar, Benutzerverwaltung, OAuth-Provider-Status -->
         <dependency>
@@ -31,6 +38,12 @@
         <dependency>
             <groupId>de.witchcafe</groupId>
             <artifactId>witch-mastodon</artifactId>
+        </dependency>
+        <!-- OpenAPI-Beschreibung der REST-API unter /api/docs/openapi.json (wie knownet) -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
+            <version>3.1.0</version>
         </dependency>
     </dependencies>
 
