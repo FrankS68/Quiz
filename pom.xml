@@ -19,9 +19,10 @@
 
     <properties>
         <!-- witch-social-parent 1.0.0 haengt noch an witch-parent 1.0.0; witch-ui 1.1.0 bringt die
-             Smartphone-Helfer (Responsive, witch-ui.css) - wie knownet mit witch-parent 1.1.0.
+             Smartphone-Helfer (Responsive, witch-ui.css), 1.2.0 das gruppierte Menue (Anwendung/
+             Social/Billing/Admin) und nur noch einen DrawerToggle - wie knownet mit witch-parent 1.1.0.
              Entfaellt, sobald es ein witch-social-parent auf Basis von witch-parent 1.1.0 gibt. -->
-        <witch-ui.version>1.1.0</witch-ui.version>
+        <witch-ui.version>1.2.0</witch-ui.version>
     </properties>
 
     <dependencies>
