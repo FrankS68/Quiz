@@ -12,6 +12,7 @@ import com.vaadin.flow.component.textfield.TextField;
 
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
+import de.witchcafe.ui.Responsive;
 
 public class EditDialog extends Dialog {
 
@@ -46,16 +47,20 @@ public class EditDialog extends Dialog {
         description.setPlaceholder("What is that quiz item meant for?");
         description.setAriaLabel("QuizItem description");
         description.setMaxLength(QuizItem.DESCRIPTION_MAX_LENGTH);
-        description.setMinWidth("22em");
 
         VerticalLayout dialogLayout = new VerticalLayout(category, question, answer, description);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
-        dialogLayout.getStyle().set("width", "22em").set("max-width", "100%");
 
         setHeaderTitle("New Quiz Item");
 
+        // Felder fuellen den Dialog: auf dem Handy volle Breite, auf dem Desktop bis 28em
+        category.setWidthFull();
+        question.setWidthFull();
+        answer.setWidthFull();
+        description.setWidthFull();
         add(dialogLayout);
+        Responsive.dialog(this, "28em");
         
         Button saveButton = new Button("Save", e -> {
             quizItemService.createQuizItem(

@@ -33,7 +33,10 @@ import com.vaadin.flow.router.RouteAlias;
 import de.witchcafe.ui.ViewToolbar;
 import de.witchcafe.auth.CurrentUser;
 import de.witchcafe.auth.domain.AppUser;
+import de.witchcafe.billing.client.InsufficientCreditException;
+import de.witchcafe.billing.client.api.BookingResponse;
 import de.witchcafe.quiz.Quiz;
+import de.witchcafe.quiz.QuizBilling;
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
 import de.witchcafe.quiz.QuizService;
@@ -49,6 +52,8 @@ public class QuizListView extends VerticalLayout {
     private final QuizService quizService;
     private final QuizItemService quizItemService;
     private final CurrentUser currentUser;
+    private final QuizBilling quizBilling;
+    private final Span balanceSpan = new Span();
 
     final Button createBtn;
     final Grid<Quiz> quizGrid;
@@ -56,10 +61,12 @@ public class QuizListView extends VerticalLayout {
     QuizListView(
     		QuizService quizService,
     		QuizItemService quizItemService,
-    		CurrentUser currentUser) {
+    		CurrentUser currentUser,
+    		QuizBilling quizBilling) {
         this.quizService = quizService;
         this.quizItemService = quizItemService;
         this.currentUser = currentUser;
+        this.quizBilling = quizBilling;
 
 
         MenuBar createMenu = buildQuizMenu(quizItemService);
@@ -87,7 +94,13 @@ public class QuizListView extends VerticalLayout {
         setSpacing(false);
         getStyle().setOverflow(Style.Overflow.HIDDEN);
 
-        ViewToolbar viewToolbar = new ViewToolbar("Quiz List", ViewToolbar.group(createBtn,createMenu));
+        // Guthaben aus witch-billing; unsichtbar, wenn Billing aus oder nicht erreichbar
+        balanceSpan.getElement().getThemeList().add("badge");
+        balanceSpan.setTitle("Dein Guthaben (gilt für alle WitchCafe-Apps)");
+        balanceSpan.setVisible(false);
+        quizBilling.balance().ifPresent(this::showBalance);
+
+        ViewToolbar viewToolbar = new ViewToolbar("Quiz List", ViewToolbar.group(createBtn,createMenu,balanceSpan));
 		add(viewToolbar);
         add(quizGrid);
     }
@@ -107,7 +120,26 @@ public class QuizListView extends VerticalLayout {
 	}
 
     private void startQuiz(String category) {
+        // Runde ueber witch-billing buchen (Preis aus der Preisliste, quiz/spiel)
+        try {
+            BookingResponse booking = quizBilling.chargeRound();
+            if (booking.isBooked()) {
+                showBalance(booking.balanceAfter());
+            }
+        } catch (InsufficientCreditException e) {
+            Notification.show("Nicht genug Guthaben: " + e.getBalance() + " Credits, nötig sind "
+                    + e.getRequired() + ". Neue Credits gibt es für Beiträge, z.B. neue Fragen.",
+                    5000, Notification.Position.MIDDLE)
+                    .addThemeVariants(NotificationVariant.LUMO_ERROR);
+            showBalance(e.getBalance());
+            return;
+        }
     	new QuizDialog(category, quizService, quizItemService, currentUser, quizGrid).open();
+    }
+
+    private void showBalance(long credits) {
+        balanceSpan.setText(credits + " Credits");
+        balanceSpan.setVisible(true);
     }
 
 }
