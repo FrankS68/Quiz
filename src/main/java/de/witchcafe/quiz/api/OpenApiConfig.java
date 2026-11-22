@@ -18,8 +18,9 @@ public class OpenApiConfig {
         return new OpenAPI()
                 .info(new Info()
                         .title("Quiz API")
-                        .version(ApiDokuController.VERSION)
-                        .description("Fragen und Kategorien des Quiz lesen und Fragenkataloge importieren."))
+                        .version(ApiAenderungen.aktuelleVersion())
+                        .description("Fragen und Kategorien des Quiz lesen und Fragenkataloge importieren. "
+                                + "Uebersicht: /api/docs, Anleitung mit Format der Upload-Dateien: /api/docs/anleitung."))
                 .components(new Components().addSecuritySchemes("apiKey",
                         new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer")
                                 .description("API-Key aus der Verwaltung (Admin → API-Keys)")))
