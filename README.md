@@ -74,6 +74,27 @@ If you use commercial components, pass the license key as a build secret:
 docker build --secret id=proKey,src=$HOME/.vaadin/proKey .
 ```
 
+## Guthaben (witch-billing)
+
+Das Quiz bucht über den zentralen Billing-Dienst ([witch-billing](https://github.com/FrankS68/witch-billing)),
+Code in `QuizBilling`. Ohne `witch-billing.url` ist Billing aus und alles frei.
+
+| Feature (App `quiz`) | Art | Wann | Startpreis |
+|---|---|---|---|
+| `spiel` | Verbrauch | Start einer Quiz-Runde | 0 (nur zählen) |
+| `frage-angelegt` | Beitrag | Frage im Dialog angelegt | 5 |
+| `frage-importiert` | Beitrag | pro Frage aus einem hochgeladenen Fragenkatalog | 1 |
+
+- Reicht das Guthaben nicht, startet die Runde nicht (Hinweis mit Kontostand).
+- Gutschriften erst nach erfolgreichem Speichern; Importe über die REST-API bekommen keine (kein Benutzer).
+- Ist der Dienst nicht erreichbar, läuft das Quiz weiter (`witch-billing.fail-open=true`).
+- Der Kontostand steht als Badge in der Kopfzeile der Quiz-Liste.
+
+Einrichten:
+1. Im Billing-Dienst unter *Preisliste* die drei Features oben anlegen.
+2. API-Key erzeugen (siehe README von witch-billing): Hash als `BILLING_KEY_HASH_QUIZ` in den Dienst,
+   Klartext als `WITCH_BILLING_API_KEY` ins Quiz, dazu `WITCH_BILLING_URL` (IONOS: `http://127.0.0.1:8085`).
+
 ## Next Steps
 
 The [Building Apps](https://vaadin.com/docs/v25/building-apps) guides contain hands-on advice for adding features to 
