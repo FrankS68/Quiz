@@ -16,12 +16,13 @@ WORKDIR /app
 
 COPY pom.xml .
 COPY src ./src
+# -U: SNAPSHOTs (witch-auth) bei jedem Build pruefen - der Maven-Cache hielte sie sonst bis zu einen Tag alt
 RUN --mount=type=cache,target=/root/.m2/repository \
     --mount=type=secret,id=github_token,required=true \
     mkdir -p /root/.m2 \
     && printf '<settings><servers><server><id>github</id><username>token</username><password>%s</password></server></servers></settings>' \
          "$(tr -d '\r\n' < /run/secrets/github_token)" > /tmp/settings.xml \
-    && mvn -s /tmp/settings.xml package -DskipTests -B -q \
+    && mvn -s /tmp/settings.xml package -U -DskipTests -B -q \
     && rm /tmp/settings.xml
 
 # ---- Runtime-Stage ----
