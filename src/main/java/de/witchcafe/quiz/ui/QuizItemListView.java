@@ -34,12 +34,17 @@ import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
 import de.witchcafe.quiz.QuizRoles;
 import de.witchcafe.ui.Responsive;
-import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 
+/**
+ * Fragenkatalog - nur fuer Editoren und Admins. Einfache Benutzer (USER) sehen nur die
+ * Quiz-Ebene (QuizListView): Quiz spielen und gelaufene Quizze ansehen. Vaadin blendet die
+ * Seite fuer sie auch im Menue aus.
+ */
 @Route("/questionitems")
 @PageTitle("QuestionItem List")
 @Menu(order = 0, icon = "vaadin:clipboard-check", title = "QuestionItem")
-@PermitAll
+@RolesAllowed({AppRoles.ADMIN, QuizRoles.EDITOR})
 public class QuizItemListView extends VerticalLayout {
 
     private final QuizItemService quizItemService;
