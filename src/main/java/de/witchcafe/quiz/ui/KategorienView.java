@@ -26,6 +26,7 @@ import de.witchcafe.quiz.Kategorie;
 import de.witchcafe.quiz.KategorieService;
 import de.witchcafe.quiz.KategorieService.Info;
 import de.witchcafe.quiz.QuizRoles;
+import de.witchcafe.quiz.ki.KiFragenService;
 import de.witchcafe.ui.Responsive;
 import de.witchcafe.ui.ViewToolbar;
 import jakarta.annotation.security.RolesAllowed;
@@ -42,12 +43,14 @@ import jakarta.annotation.security.RolesAllowed;
 public class KategorienView extends VerticalLayout {
 
     private final KategorieService kategorieService;
+    private final KiFragenService kiFragenService;
     private final TreeGrid<Info> tree = new TreeGrid<>();
     private final TextField suche = new TextField();
     private List<Info> alle = List.of();
 
-    KategorienView(KategorieService kategorieService) {
+    KategorienView(KategorieService kategorieService, KiFragenService kiFragenService) {
         this.kategorieService = kategorieService;
+        this.kiFragenService = kiFragenService;
 
         setSizeFull();
         setPadding(false);
@@ -73,7 +76,12 @@ public class KategorienView extends VerticalLayout {
             bearbeiten.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
             bearbeiten.setTooltipText("Umbenennen, verschieben, Schlagworte");
             bearbeiten.setAriaLabel("Bearbeiten");
-            return bearbeiten;
+            Button ki = new Button(VaadinIcon.MAGIC.create(), e -> kiFragen(i.pfad()));
+            ki.addThemeVariants(ButtonVariant.LUMO_TERTIARY, ButtonVariant.LUMO_SMALL);
+            ki.setTooltipText("Kategorie mit KI um Fragen erweitern");
+            ki.setAriaLabel("Mit KI erweitern");
+            ki.setVisible(kiFragenService.aktiv());
+            return new HorizontalLayout(bearbeiten, ki);
         }).setAutoWidth(true).setFlexGrow(0);
         Responsive.hideOnMobile(tree, schlagwortSpalte, fragenSpalte);
         tree.addItemDoubleClickListener(e -> bearbeite(e.getItem()));
@@ -91,8 +99,21 @@ public class KategorienView extends VerticalLayout {
         kopf.setPadding(true);
         kopf.getStyle().setPaddingTop("0");
 
-        add(new ViewToolbar("Kategorien"), kopf, tree);
+        Button neuMitKi = new Button("Fragen mit KI", VaadinIcon.MAGIC.create(), e -> kiFragen(null));
+        neuMitKi.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        if (!kiFragenService.aktiv()) {
+            neuMitKi.setEnabled(false);
+            neuMitKi.setTooltipText("Kein KI-Key konfiguriert (quiz.ki.anthropic-, mistral-, openai- oder gemini-api-key)");
+        } else {
+            neuMitKi.setTooltipText("Neue Kategorie anlegen oder bestehende erweitern");
+        }
+
+        add(new ViewToolbar("Kategorien", neuMitKi), kopf, tree);
         laden();
+    }
+
+    private void kiFragen(String pfad) {
+        new KiFragenDialog(kiFragenService, alle.stream().map(Info::pfad).toList(), pfad, this::laden).open();
     }
 
     private void laden() {

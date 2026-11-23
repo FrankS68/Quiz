@@ -56,6 +56,13 @@
             <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
             <version>3.1.0</version>
         </dependency>
+        <!-- KI-Fragengenerator (Kategorien anlegen/erweitern): Claude ueber die Anthropic-API.
+             Mistral, OpenAI und Gemini werden per RestClient angesprochen. -->
+        <dependency>
+            <groupId>com.anthropic</groupId>
+            <artifactId>anthropic-java</artifactId>
+            <version>3.12.0</version>
+        </dependency>
     </dependencies>
 
     <build>
