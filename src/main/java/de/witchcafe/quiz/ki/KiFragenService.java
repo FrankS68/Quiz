@@ -219,9 +219,14 @@ public class KiFragenService {
     private Vorschlag parse(String text) {
         JsonNode wurzel;
         try {
-            wurzel = json.readTree(text);
+            // manche Modelle setzen trotz JSON-Modus Markdown-Zaeune um die Antwort
+            String roh = text == null ? "" : text.strip().replaceFirst("^```(?:json)?\\s*", "").replaceFirst("\\s*```$", "");
+            wurzel = json.readTree(roh);
         } catch (RuntimeException e) {
             throw new KiFehler("Antwort der KI ist kein gueltiges JSON");
+        }
+        if (!wurzel.path("fragen").isArray()) {
+            throw new KiFehler("Antwort der KI enthält keine Fragen");
         }
         List<KiFrage> fragen = new ArrayList<>();
         for (JsonNode f : wurzel.path("fragen")) {

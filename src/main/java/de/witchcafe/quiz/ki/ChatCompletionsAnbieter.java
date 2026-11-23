@@ -69,7 +69,18 @@ abstract class ChatCompletionsAnbieter implements KiAnbieter {
                 throw new KiFehler("Die KI hat die Anfrage abgelehnt: " + verweigert);
             }
             log.info("KI-Fragen mit {} {}: {}", id(), a.modell(), wurzel.path("usage"));
-            return wahl.path("message").path("content").asString("");
+            JsonNode antwortInhalt = wahl.path("message").path("content");
+            if (!antwortInhalt.isArray()) {
+                return antwortInhalt.asString("");
+            }
+            // Denkende Modelle liefern Bloecke: {"type":"thinking",...}, {"type":"text","text":"..."}
+            StringBuilder text = new StringBuilder();
+            antwortInhalt.forEach(b -> {
+                if ("text".equals(b.path("type").asString(""))) {
+                    text.append(b.path("text").asString(""));
+                }
+            });
+            return text.toString();
         } catch (RestClientResponseException e) {
             log.warn("{}-Fehler: {}", name(), e.getResponseBodyAsString());
             throw new KiFehler(name() + "-API " + e.getStatusCode().value() + ": " + HttpKi.fehlertext(e.getResponseBodyAsString()));
