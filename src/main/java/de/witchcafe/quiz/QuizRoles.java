@@ -5,7 +5,7 @@ package de.witchcafe.quiz;
  *
  * ADMIN   (aus witch-auth) - alles, inkl. Benutzerverwaltung und Social-Seiten
  * EDITOR  - darf Fragen bearbeiten und Fragenkataloge hochladen
- * USER    (aus witch-auth) - Quiz spielen und Ergebnisse sehen
+ * USER    (aus witch-auth) - nur die Quiz-Ebene: Quiz spielen und gelaufene Quizze sehen (vorerst alle)
  */
 public final class QuizRoles {
 
