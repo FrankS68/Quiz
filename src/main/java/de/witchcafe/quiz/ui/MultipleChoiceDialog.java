@@ -59,7 +59,8 @@ public class MultipleChoiceDialog extends QuizLaufDialog {
             optionen.add(new Option(text, kachel));
             optionenBox.add(kachel);
         }
-        inhalt.add(frageText(item), optionenBox);
+        zeigeFrageMitBild(item, frageText(item));
+        inhalt.add(optionenBox);
     }
 
     private void aufloesen(QuizItem item, String gewaehlt, List<Option> optionen) {

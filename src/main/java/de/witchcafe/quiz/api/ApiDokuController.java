@@ -65,7 +65,7 @@ public class ApiDokuController {
                 + "Kategorien sind hierarchisch (Oberthema/Zertifikat/Abschnitt, getrennt durch '/') und haben "
                 + "suchbare Schlagworte, die Editoren in der Oberflaeche pflegen. "
                 + "Eine Frage hat ein Thema (= Kategorie), den Fragetext, Antwortmoeglichkeiten, die richtige Antwort "
-                + "und optional eine Erklaerung. Quiz spielen und Ergebnisse ansehen geht nur in der Oberflaeche.");
+                + "und optional eine Erklaerung und ein Bild. Quiz spielen und Ergebnisse ansehen geht nur in der Oberflaeche.");
         doku.put("authentifizierung", Map.of(
                 "header", "Authorization: Bearer <API-Key>",
                 "giltFuer", "alle /api/** ausser /api/docs/**",
@@ -89,6 +89,7 @@ public class ApiDokuController {
                 "antworten", "Liste der Antwortmoeglichkeiten, die richtige eingeschlossen",
                 "correct_answer", "die richtige Antwort, gleicher Text wie in 'antworten' (Pflicht)",
                 "beschreibung", "optional: Erklaerung, max. 300 Zeichen",
+                "bild", "optional: Bild zur Frage als http(s)-URL oder '/bilder/<id>' (hochgeladen in der Oberflaeche)",
                 "beispiel", Map.of(
                         "thema", "Geografie/Deutschland/Fluesse",
                         "frage", "Welcher Fluss fliesst durch Koeln?",

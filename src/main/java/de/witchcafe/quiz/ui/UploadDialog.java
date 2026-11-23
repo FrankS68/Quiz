@@ -69,7 +69,8 @@ public class UploadDialog extends Dialog {
                                 text(m.get("frage")),
                                 m.get("antworten") instanceof List<?> l ? l.stream().map(String::valueOf).toList() : List.of(),
                                 text(m.get("correct_answer")),
-                                text(m.get("beschreibung"))))
+                                text(m.get("beschreibung")),
+                                text(m.get("bild"))))
                         .toList();
                 ImportErgebnis ergebnis = quizItemService.importiere(fragen);
                 ergebnis.fehler().forEach(System.err::println);

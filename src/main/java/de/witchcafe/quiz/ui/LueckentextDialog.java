@@ -86,7 +86,8 @@ public class LueckentextDialog extends QuizLaufDialog {
         Span hinweis = new Span(luecken.size() == 1 ? "Ergänze das fehlende Stichwort:"
                 : "Ergänze die " + luecken.size() + " fehlenden Stichworte:");
         hinweis.getStyle().setFontSize("var(--lumo-font-size-s)").setColor("var(--lumo-secondary-text-color)");
-        inhalt.add(frageText(item), hinweis, text, pruefen);
+        zeigeFrageMitBild(item, frageText(item));
+        inhalt.add(hinweis, text, pruefen);
         luecken.get(0).feld().focus();
     }
 

@@ -19,6 +19,10 @@ public final class ApiAenderungen {
     public record Eintrag(String version, String datum, boolean inkompatibel, List<String> aenderungen) {}
 
     public static final List<Eintrag> PROTOKOLL = List.of(
+            new Eintrag("1.3.0", "2026-11-23", false, List.of(
+                    "Fragen haben ein optionales Feld 'bild': externe http(s)-URL oder ein in der Oberflaeche "
+                            + "hochgeladenes Bild ('/bilder/<id>'). Import (POST /api/fragen) nimmt es an, "
+                            + "GET /api/fragen liefert es mit (leer = kein Bild). Andere Werte werden als Fehler gemeldet.")),
             new Eintrag("1.2.0", "2026-11-23", false, List.of(
                     "Kategorien sind hierarchisch: Ebenen im 'thema' mit '/' trennen, z.B. "
                             + "\"Drohnen/EU A1-A3/Luftrecht\" (Oberthema/Zertifikat/Abschnitt). "

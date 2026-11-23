@@ -61,7 +61,7 @@ public class FragenApiController {
 
     @PostMapping(value = "/api/fragen", consumes = "application/json")
     @Operation(summary = "Fragenkatalog als JSON-Body importieren (Rolle EDITOR oder ADMIN)",
-            description = "JSON-Array wie beim Upload: thema, frage, antworten, correct_answer, optional beschreibung.")
+            description = "JSON-Array wie beim Upload: thema, frage, antworten, correct_answer, optional beschreibung und bild.")
     public ImportErgebnis importJson(@RequestBody List<FrageImport> fragen) {
         return quizItemService.importiere(fragen);
     }
@@ -90,11 +90,12 @@ public class FragenApiController {
             String frage,
             List<String> antworten,
             @com.fasterxml.jackson.annotation.JsonProperty("correct_answer") String correctAnswer,
-            String beschreibung) {
+            String beschreibung,
+            String bild) {
 
         static Frage von(QuizItem q) {
             return new Frage(q.getId(), q.getCategory(), q.getQuestion(), q.getOptions(), q.getAnswer(),
-                    q.getDescription());
+                    q.getDescription(), q.getBild());
         }
     }
 }

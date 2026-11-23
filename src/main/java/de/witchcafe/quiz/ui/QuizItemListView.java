@@ -14,6 +14,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -93,6 +94,17 @@ public class QuizItemListView extends VerticalLayout {
         quizItemGrid.addColumn(QuizItem::getQuestion).setHeader("Question");
         // quizItemGrid.addColumn(QuizItem::getAnswer).setHeader("Answer");
         var descriptionColumn = quizItemGrid.addColumn(QuizItem::getDescription).setHeader("Description");
+        // Bild: Symbol, wenn gesetzt; Editoren oeffnen per Klick den Bild-Dialog
+        quizItemGrid.addComponentColumn(item -> {
+            Button b = new Button((item.hatBild() ? VaadinIcon.PICTURE : VaadinIcon.PLUS_CIRCLE_O).create());
+            b.addThemeVariants(ButtonVariant.LUMO_TERTIARY_INLINE, ButtonVariant.LUMO_SMALL);
+            b.setTooltipText(item.hatBild() ? "Bild ändern" : "Bild hinzufügen");
+            b.setAriaLabel(b.getTooltip().getText());
+            b.setEnabled(canEdit);
+            b.addClickListener(e -> new BildDialog(item, quizItemService,
+                    () -> quizItemGrid.getDataProvider().refreshAll()).open());
+            return b;
+        }).setHeader("Bild").setAutoWidth(true).setFlexGrow(0);
         // Auf dem Handy nur Kategorie und Frage
         Responsive.hideOnMobile(quizItemGrid, descriptionColumn);
 

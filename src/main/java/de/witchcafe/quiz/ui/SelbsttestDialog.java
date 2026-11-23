@@ -54,7 +54,8 @@ public class SelbsttestDialog extends QuizLaufDialog {
             weiter();
         });
 
-        inhalt.add(frage, tipp, antwort);
+        zeigeFrageMitBild(item, frage);
+        inhalt.add(tipp, antwort);
         if (erklaerung != null) {
             inhalt.add(erklaerung);
         }

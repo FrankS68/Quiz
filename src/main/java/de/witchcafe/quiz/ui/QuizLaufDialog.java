@@ -14,6 +14,7 @@ import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -153,6 +154,31 @@ public abstract class QuizLaufDialog extends Dialog {
         Div div = new Div(item.getQuestion());
         div.getStyle().setFontWeight("600").setFontSize("var(--lumo-font-size-l)");
         return div;
+    }
+
+    /** Bild der Frage (falls vorhanden), passend in den Dialog skaliert; sonst {@code null}. */
+    protected static @Nullable Component bild(QuizItem item) {
+        return item.hatBild() ? bildKomponente(item.getBild()) : null;
+    }
+
+    /** Bild zu einer URL, hoechstens so breit wie der Dialog und 16em hoch. */
+    static Component bildKomponente(String url) {
+        Image img = new Image(url, "Bild zur Frage");
+        img.getStyle().setMaxWidth("100%").setMaxHeight("16em").set("object-fit", "contain")
+                .setDisplay(com.vaadin.flow.dom.Style.Display.BLOCK)
+                .setMargin("0 auto").setBorderRadius("var(--lumo-border-radius-m)");
+        img.getElement().setAttribute("loading", "eager");
+        img.getElement().setAttribute("referrerpolicy", "no-referrer");
+        return img;
+    }
+
+    /** Fragetext und darunter ggf. das Bild in den {@link #inhalt}. */
+    protected final void zeigeFrageMitBild(QuizItem item, Component frage) {
+        inhalt.add(frage);
+        Component b = bild(item);
+        if (b != null) {
+            inhalt.add(b);
+        }
     }
 
     /** Beschreibung/Erklaerung der Frage nach dem Aufloesen, falls vorhanden. */

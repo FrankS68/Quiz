@@ -74,7 +74,8 @@ curl -H "Authorization: Bearer $KEY" "$QUIZ/api/fragen?kategorie=Geografie%2FDeu
   "frage": "Welcher Fluss fließt durch Köln?",
   "antworten": ["Main", "Rhein", "Elbe", "Mosel"],
   "correct_answer": "Rhein",
-  "beschreibung": "Köln liegt am Rhein."
+  "beschreibung": "Köln liegt am Rhein.",
+  "bild": ""
 }]
 ```
 
@@ -95,6 +96,7 @@ Jede Frage ist ein Objekt mit diesen Feldern:
 | `antworten`      | Liste von Texten| nein    | alle Antwortmöglichkeiten, **die richtige eingeschlossen**; Reihenfolge beliebig |
 | `correct_answer` | Text            | ja      | die richtige Antwort, **genau derselbe Text** wie in `antworten` |
 | `beschreibung`   | Text            | nein    | Erklärung zur Antwort, höchstens 300 Zeichen                  |
+| `bild`           | Text            | nein    | Bild zur Frage: `https://…`-URL oder `/bilder/<id>` (in der Oberfläche hochgeladen); leer = kein Bild |
 
 Regeln:
 
@@ -106,6 +108,9 @@ Regeln:
 - Weitere Felder (z. B. `id` aus einem Export, eigene Notizen) werden ignoriert. Ein Export aus
   `GET /api/fragen` lässt sich also direkt wieder hochladen, legt dann aber **neue** Fragen an (Dubletten).
 - Eine Datei darf Fragen mehrerer Kategorien enthalten.
+- Bilder lassen sich nur in der Oberfläche hochladen (Fragen → Bild-Symbol der Zeile). Im Import geht eine
+  externe `https://`-URL oder die `/bilder/<id>` eines schon hochgeladenen Bildes. Externe Bilder lädt der
+  Browser des Spielers direkt von dort; die Rechte am Bild muss der Einsteller klären.
 - Die Datei muss ein Array sein (`[ … ]`), auch bei nur einer Frage.
 
 Beispiel `fragen.json`:
