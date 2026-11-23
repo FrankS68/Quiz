@@ -16,14 +16,14 @@ import de.witchcafe.quiz.Quiz;
 import de.witchcafe.quiz.QuizService;
 import de.witchcafe.ui.Responsive;
 
-/** Gelaufene Quizze einer Kategorie, neueste zuerst (vorerst alle Benutzer). */
+/** Gelaufene Quizze einer Kategorie inkl. Unterbereiche, neueste zuerst (vorerst alle Benutzer). */
 public class ResultateDialog extends Dialog {
 
     private static final DateTimeFormatter FMT =
             DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm").withZone(ZoneId.of("Europe/Berlin"));
 
     public ResultateDialog(String category, QuizService quizService) {
-        setHeaderTitle("Resultate: " + category);
+        setHeaderTitle("Resultate: " + category.replace("/", " › "));
 
         List<Quiz> resultate = quizService.resultate(category);
         Grid<Quiz> grid = new Grid<>();
@@ -38,6 +38,8 @@ public class ResultateDialog extends Dialog {
             }
             return span;
         }).setHeader("Benutzer").setAutoWidth(true);
+        grid.addColumn(q -> q.getCategory().equals(category) ? "" : q.getCategory().substring(category.length() + 1).replace("/", " › "))
+                .setHeader("Bereich").setAutoWidth(true);
         grid.addColumn(q -> anzahlFragen(q.getResult())).setHeader("Fragen").setAutoWidth(true);
         grid.setEmptyStateText("In dieser Kategorie wurde noch kein Quiz gespielt");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_COMPACT);

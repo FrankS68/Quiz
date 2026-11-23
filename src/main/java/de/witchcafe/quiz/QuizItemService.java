@@ -66,7 +66,7 @@ public class QuizItemService {
                 fehler.add("Eintrag " + (i + 1) + ": beschreibung laenger als " + QuizItem.DESCRIPTION_MAX_LENGTH + " Zeichen");
                 continue;
             }
-            var quizItem = new QuizItem(f.thema().trim(), f.frage().trim(), f.correctAnswer().trim(), beschreibung);
+            var quizItem = new QuizItem(Kategorie.normalisiere(f.thema()), f.frage().trim(), f.correctAnswer().trim(), beschreibung);
             quizItem.setOptions(f.antworten() == null ? new ArrayList<>() : new ArrayList<>(f.antworten()));
             quizItemRepository.save(quizItem);
             angelegt++;
@@ -99,6 +99,14 @@ public class QuizItemService {
         return quizItemRepository.findByCategory(category);
     }
     
+    /** Fragen einer Kategorie inkl. aller Unterkategorien (Quiz auf Oberthemen). */
+    @Transactional(readOnly = true)
+    public List<QuizItem> findImTeilbaum(String pfad) {
+        return quizItemRepository.findImTeilbaum(pfad).stream()
+                .filter(q -> Kategorie.imTeilbaum(q.getCategory(), pfad))
+                .toList();
+    }
+
     @Transactional(readOnly = true)
     public List<Object[]> lookupCategories() {
         return quizItemRepository.lookupCategories();

@@ -19,6 +19,14 @@ public final class ApiAenderungen {
     public record Eintrag(String version, String datum, boolean inkompatibel, List<String> aenderungen) {}
 
     public static final List<Eintrag> PROTOKOLL = List.of(
+            new Eintrag("1.2.0", "2026-11-23", false, List.of(
+                    "Kategorien sind hierarchisch: Ebenen im 'thema' mit '/' trennen, z.B. "
+                            + "\"Drohnen/EU A1-A3/Luftrecht\" (Oberthema/Zertifikat/Abschnitt). "
+                            + "Leerzeichen um '/' werden beim Import entfernt.",
+                    "GET /api/kategorien: liefert jetzt jeden Knoten des Baums, auch Oberthemen ohne eigene Fragen; "
+                            + "neue Felder 'oberkategorie', 'anzahlGesamt' (inkl. Unterbereiche) und 'schlagworte'. "
+                            + "'name' ist der volle Pfad, 'anzahl' wie bisher die Fragen genau dieser Kategorie.",
+                    "GET /api/fragen?kategorie=...: liefert die Fragen der Kategorie inkl. aller Unterbereiche.")),
             new Eintrag("1.1.0", "2026-11-22", false, List.of(
                     "GET /api/docs beschreibt jetzt, was die API kann: 'beschreibung', 'endpunkte' "
                             + "(Methode, Pfad, noetige Rolle, Zweck), 'rollen', 'uploadDatei', 'frageFormat' und 'fehlercodes'.",

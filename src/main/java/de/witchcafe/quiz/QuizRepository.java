@@ -7,6 +7,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface QuizRepository extends JpaRepository<Quiz, Long>, JpaSpecificationExecutor<Quiz> {
 
@@ -14,6 +15,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Long>, JpaSpecificat
     // Page performs both a select and a count query.
     Slice<Quiz> findAllBy(Pageable pageable);
 
-    /** Gelaufene Quizze einer Kategorie, neueste zuerst. */
-    List<Quiz> findByCategoryOrderByIdDesc(String category);
+    /** Gelaufene Quizze einer Kategorie inkl. Unterkategorien, neueste zuerst. */
+    @Query("SELECT q FROM Quiz q WHERE q.category = :pfad OR q.category LIKE CONCAT(:pfad, '/%') ORDER BY q.id DESC")
+    List<Quiz> findImTeilbaum(@Param("pfad") String pfad);
 }

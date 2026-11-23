@@ -7,6 +7,7 @@ import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface QuizItemRepository extends JpaRepository<QuizItem, Long>, JpaSpecificationExecutor<QuizItem> {
 
@@ -17,4 +18,8 @@ public interface QuizItemRepository extends JpaRepository<QuizItem, Long>, JpaSp
 
     @Query("SELECT category, count(*) FROM QuizItem GROUP BY category ORDER BY category DESC")
     List<Object[]> lookupCategories();
+
+    /** Fragen einer Kategorie inkl. aller Unterkategorien (Treffer per LIKE, genau gefiltert im Service). */
+    @Query("SELECT q FROM QuizItem q WHERE q.category = :pfad OR q.category LIKE CONCAT(:pfad, '/%')")
+    List<QuizItem> findImTeilbaum(@Param("pfad") String pfad);
 }

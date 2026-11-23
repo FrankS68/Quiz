@@ -19,7 +19,7 @@ import de.witchcafe.quiz.QuizService;
 import de.witchcafe.ui.Responsive;
 
 /**
- * Spielt bis zu 5 zufaellige Fragen einer Kategorie: Klick auf die Frage zeigt die Antwort,
+ * Spielt bis zu 5 zufaellige Fragen einer Kategorie inkl. ihrer Unterbereiche: Klick auf die Frage zeigt die Antwort,
  * Klick auf die Antwort fuehrt zur naechsten Frage. Am Ende (oder mit "End") wird das Quiz
  * gespeichert; {@code result} enthaelt die IDs der gespielten Fragen als JSON-Array.
  */
@@ -37,7 +37,7 @@ public class QuizDialog extends Dialog {
                       QuizItemService quizItemService, CurrentUser currentUser,
                       Runnable nachSpeichern) {
 
-        List<QuizItem> alle = new ArrayList<>(quizItemService.findByCategory(category));
+        List<QuizItem> alle = new ArrayList<>(quizItemService.findImTeilbaum(category));
         Collections.shuffle(alle);
         quizItems = alle.size() > 5 ? alle.subList(0, 5) : alle;
 
@@ -56,7 +56,7 @@ public class QuizDialog extends Dialog {
         Button endButton = new Button("End", e -> speichern.run());
         Button closeButton = new Button("Close", e -> close());
         getFooter().add(endButton, closeButton);
-        getHeader().add(category);
+        getHeader().add(category.replace("/", " › "));
 
         questionSpan = new Span();
         answerSpan = new Span();

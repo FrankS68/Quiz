@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import de.witchcafe.quiz.FrageImport;
+import de.witchcafe.quiz.KategorieService;
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
 import de.witchcafe.quiz.QuizItemService.ImportErgebnis;
@@ -28,28 +29,33 @@ import tools.jackson.databind.ObjectMapper;
 public class FragenApiController {
 
     private final QuizItemService quizItemService;
+    private final KategorieService kategorieService;
     private final ObjectMapper objectMapper;
 
-    public FragenApiController(QuizItemService quizItemService, ObjectMapper objectMapper) {
+    public FragenApiController(QuizItemService quizItemService, KategorieService kategorieService,
+            ObjectMapper objectMapper) {
         this.quizItemService = quizItemService;
+        this.kategorieService = kategorieService;
         this.objectMapper = objectMapper;
     }
 
     @GetMapping("/api/kategorien")
-    @Operation(summary = "Alle Kategorien (Themen) mit Anzahl der Fragen")
+    @Operation(summary = "Alle Kategorien als Baum-Knoten (Pfad mit '/'), mit Anzahl der Fragen und Schlagworten",
+            description = "Enthaelt auch Oberthemen ohne eigene Fragen. 'anzahl' = Fragen genau dieser Kategorie, "
+                    + "'anzahlGesamt' = inkl. aller Unterbereiche.")
     public List<Kategorie> kategorien() {
-        return quizItemService.lookupCategories().stream()
-                .map(r -> new Kategorie(r[0].toString(), ((Number) r[1]).longValue()))
+        return kategorieService.alle().stream()
+                .map(i -> new Kategorie(i.pfad(), i.eltern(), i.eigeneFragen(), i.fragenGesamt(), i.schlagworte()))
                 .toList();
     }
 
     @GetMapping("/api/fragen")
-    @Operation(summary = "Fragen, optional nur einer Kategorie",
+    @Operation(summary = "Fragen, optional nur einer Kategorie inkl. ihrer Unterbereiche",
             description = "Gleiches Format wie der Import, zusaetzlich mit 'id'.")
     public List<Frage> fragen(@RequestParam(required = false) String kategorie) {
         List<QuizItem> items = kategorie == null || kategorie.isBlank()
                 ? quizItemService.findAll()
-                : quizItemService.findByCategory(kategorie);
+                : quizItemService.findImTeilbaum(de.witchcafe.quiz.Kategorie.normalisiere(kategorie));
         return items.stream().map(Frage::von).toList();
     }
 
@@ -73,7 +79,8 @@ public class FragenApiController {
         return ResponseEntity.ok(quizItemService.importiere(fragen));
     }
 
-    public record Kategorie(String name, long anzahl) {
+    /** {@code name} ist der volle Pfad (wie 'thema' beim Import), {@code oberkategorie} der Pfad darueber. */
+    public record Kategorie(String name, String oberkategorie, long anzahl, long anzahlGesamt, String schlagworte) {
     }
 
     /** Frage im Exportformat (Feldnamen wie beim Import). */

@@ -43,12 +43,15 @@ public class QuizService {
     }
 
     /**
-     * Gelaufene Quizze einer Kategorie, neueste zuerst. Vorerst sieht jeder Benutzer alle;
-     * soll das spaeter eingeschraenkt werden (z.B. nur eigene), dann hier filtern.
+     * Gelaufene Quizze einer Kategorie inkl. aller Unterkategorien, neueste zuerst.
+     * Vorerst sieht jeder Benutzer alle; soll das spaeter eingeschraenkt werden
+     * (z.B. nur eigene), dann hier filtern.
      */
     @Transactional(readOnly = true)
-    public List<Quiz> resultate(String category) {
-        return quizRepository.findByCategoryOrderByIdDesc(category);
+    public List<Quiz> resultate(String pfad) {
+        return quizRepository.findImTeilbaum(pfad).stream()
+                .filter(q -> Kategorie.imTeilbaum(q.getCategory(), pfad))
+                .toList();
     }
 
     /** Anonyme Nutzer (kein Login) speichern ihr Quiz ohne Benutzerbezug. */
