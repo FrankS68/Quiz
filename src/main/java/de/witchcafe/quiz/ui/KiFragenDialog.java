@@ -206,6 +206,7 @@ class KiFragenDialog extends Dialog {
         grid.asMultiSelect().select(vorschlag.fragen());
         grid.addThemeVariants(GridVariant.LUMO_WRAP_CELL_CONTENT, GridVariant.LUMO_ROW_STRIPES);
         grid.setHeight("min(60vh, 40em)");
+        MobilGrid.kompakt(grid);
         grid.setEmptyStateText("Die KI hat keine verwendbaren Fragen geliefert");
         inhalt.add(grid);
         add(inhalt);

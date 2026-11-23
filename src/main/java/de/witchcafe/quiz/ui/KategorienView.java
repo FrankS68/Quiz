@@ -88,12 +88,14 @@ public class KategorienView extends VerticalLayout {
         tree.setEmptyStateText("Keine Kategorien");
         tree.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_ROW_STRIPES);
         tree.setSizeFull();
+        MobilGrid.kompakt(tree);
 
         Paragraph hinweis = new Paragraph("Ebenen mit „/“ trennen, z. B. „Drohnen/EU A1-A3/Luftrecht“ "
                 + "(Oberthema / Zertifikat / Abschnitt). Wer eine Kategorie umbenennt oder verschiebt, nimmt alle "
                 + "Fragen, Unterbereiche, Resultate, Schlagworte und Favoriten mit.");
         hinweis.getStyle().setColor("var(--lumo-secondary-text-color)").setFontSize("var(--lumo-font-size-s)")
                 .setMargin("0");
+        Responsive.hiddenOnMobile(hinweis); // Handy: Platz fuer den Baum
 
         VerticalLayout kopf = new VerticalLayout(hinweis, suche);
         kopf.setPadding(true);

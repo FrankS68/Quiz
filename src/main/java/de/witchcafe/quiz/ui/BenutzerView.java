@@ -78,6 +78,7 @@ public class BenutzerView extends VerticalLayout {
                 .setHeader("Sperren").setAutoWidth(true).setFlexGrow(0);
 
         grid.setSizeFull();
+        MobilGrid.kompakt(grid);
         Responsive.hideOnMobile(grid, emailSpalte, providerSpalte, loginSpalte);
         add(new ViewToolbar("Benutzer"), grid);
         aktualisiere();

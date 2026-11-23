@@ -61,6 +61,7 @@ public class ApiKeyView extends VerticalLayout {
         grid.addComponentColumn(this::aktionen).setHeader("Aktionen").setAutoWidth(true);
 
         grid.setSizeFull();
+        MobilGrid.kompakt(grid);
         Responsive.hideOnMobile(grid, rolleSpalte, erstelltSpalte);
         add(new ViewToolbar("API-Keys", neuerKey), grid);
         aktualisiere();

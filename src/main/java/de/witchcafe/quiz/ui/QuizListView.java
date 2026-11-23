@@ -108,6 +108,7 @@ public class QuizListView extends VerticalLayout {
         tree.setSizeFull();
         Responsive.onMobileChange(tree, m -> {
             mobil = m;
+            MobilGrid.setze(tree, m);
             tree.getDataProvider().refreshAll();
             zeigeFavoriten();
         });
@@ -185,7 +186,12 @@ public class QuizListView extends VerticalLayout {
                 e -> new ResultateDialog(i.pfad(), quizService).open());
         resultate.addThemeVariants(ButtonVariant.LUMO_SMALL);
         resultate.setTooltipText("Resultate dieser Kategorie");
-        if (!mobil) {
+        if (mobil) {
+            // Handy: nur Symbole, Resultate ohne Rahmen - der Kategoriename behaelt den Platz
+            resultate.addThemeVariants(ButtonVariant.LUMO_TERTIARY);
+            starten.setAriaLabel("Quiz starten");
+            resultate.setAriaLabel("Resultate");
+        } else {
             starten.setText("Starten");
             resultate.setText("Resultate");
         }
@@ -202,7 +208,8 @@ public class QuizListView extends VerticalLayout {
         favorit.setVisible(userId().isPresent());
 
         HorizontalLayout buttons = new HorizontalLayout(starten, resultate, favorit);
-        buttons.setSpacing(true);
+        buttons.setSpacing(false);
+        buttons.getStyle().set("gap", mobil ? "var(--lumo-space-xs)" : "var(--lumo-space-s)");
         buttons.setAlignItems(FlexComponent.Alignment.CENTER);
         return buttons;
     }

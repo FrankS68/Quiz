@@ -110,6 +110,7 @@ public class QuizItemListView extends VerticalLayout {
 
         quizItemGrid.setEmptyStateText("No Items to be quizzed");
         quizItemGrid.setSizeFull();
+        MobilGrid.kompakt(quizItemGrid);
         quizItemGrid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 
         setSizeFull();
