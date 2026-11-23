@@ -13,4 +13,7 @@ public interface QuizRepository extends JpaRepository<Quiz, Long>, JpaSpecificat
     // If you don't need a total row count, Slice is better than Page as it only performs a select query.
     // Page performs both a select and a count query.
     Slice<Quiz> findAllBy(Pageable pageable);
+
+    /** Gelaufene Quizze einer Kategorie, neueste zuerst. */
+    List<Quiz> findByCategoryOrderByIdDesc(String category);
 }

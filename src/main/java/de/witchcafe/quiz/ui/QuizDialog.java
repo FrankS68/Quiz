@@ -1,102 +1,99 @@
 package de.witchcafe.quiz.ui;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 
 import com.nimbusds.jose.shaded.gson.Gson;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.dialog.Dialog;
-import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 
 import de.witchcafe.auth.CurrentUser;
-import de.witchcafe.quiz.Quiz;
 import de.witchcafe.quiz.QuizItem;
 import de.witchcafe.quiz.QuizItemService;
 import de.witchcafe.quiz.QuizService;
 import de.witchcafe.ui.Responsive;
 
+/**
+ * Spielt bis zu 5 zufaellige Fragen einer Kategorie: Klick auf die Frage zeigt die Antwort,
+ * Klick auf die Antwort fuehrt zur naechsten Frage. Am Ende (oder mit "End") wird das Quiz
+ * gespeichert; {@code result} enthaelt die IDs der gespielten Fragen als JSON-Array.
+ */
 public class QuizDialog extends Dialog {
 
-    private final QuizService quizService;
-    private final QuizItemService quizItemService;
-    private final CurrentUser currentUser;
-    private final Grid<Quiz> quizGrid;
+    private final List<Long> gespielt = new ArrayList<>();
+    private final List<QuizItem> quizItems;
+    private int quizIndex = 0;
+    private boolean gespeichert = false;
 
-    private HashMap<QuizItem, String> result = new HashMap<>();
-    private List<QuizItem> quizItems;
-    private QuizItem quizItem;
-    private Span questionSpan;
-    private Span answerSpan;
-    private Integer quizIndex = 0;
+    private final Span questionSpan;
+    private final Span answerSpan;
 
-    public QuizDialog(String category, QuizService quizService, 
-                     QuizItemService quizItemService, CurrentUser currentUser,
-                     Grid<Quiz> quizGrid) {
-        this.quizService = quizService;
-        this.quizItemService = quizItemService;
-        this.currentUser = currentUser;
-        this.quizGrid = quizGrid;
+    public QuizDialog(String category, QuizService quizService,
+                      QuizItemService quizItemService, CurrentUser currentUser,
+                      Runnable nachSpeichern) {
 
-        quizItems = quizItemService.findByCategory(category);
-        Collections.shuffle(quizItems);
-        if (quizItems.size() > 5) {
-            quizItems = quizItems.subList(0, 5);
-        }
-        
-        quizItem = quizItems.get(quizIndex);
-        
-        Button endButton = new Button("End", e -> {
-            quizService.createQuiz(
-                category,
-                currentUser.get().orElse(null),
-                new Gson().toJson(result));
-            quizGrid.getDataProvider().refreshAll();
-            Notification.show("Quiz added", 3000, Notification.Position.BOTTOM_END)
+        List<QuizItem> alle = new ArrayList<>(quizItemService.findByCategory(category));
+        Collections.shuffle(alle);
+        quizItems = alle.size() > 5 ? alle.subList(0, 5) : alle;
+
+        Runnable speichern = () -> {
+            if (gespeichert) {
+                return;
+            }
+            gespeichert = true;
+            quizService.createQuiz(category, currentUser.get().orElse(null), new Gson().toJson(gespielt));
+            nachSpeichern.run();
+            Notification.show("Quiz gespeichert", 3000, Notification.Position.BOTTOM_END)
                     .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
             close();
-        });
-        
+        };
+
+        Button endButton = new Button("End", e -> speichern.run());
         Button closeButton = new Button("Close", e -> close());
         getFooter().add(endButton, closeButton);
         getHeader().add(category);
-        
-        questionSpan = new Span(quizItem.getQuestion());
-        questionSpan.addClickListener(e -> {
-            answerSpan.setVisible(true);
-            answerSpan.setEnabled(true);
-        });
-        
-        answerSpan = new Span(quizItem.getAnswer());
+
+        questionSpan = new Span();
+        answerSpan = new Span();
         answerSpan.setVisible(false);
-        answerSpan.setEnabled(false);
+
+        questionSpan.addClickListener(e -> {
+            if (!quizItems.isEmpty()) {
+                answerSpan.setVisible(true);
+            }
+        });
         answerSpan.addClickListener(e -> {
             answerSpan.setVisible(false);
-            answerSpan.setEnabled(false);
+            gespielt.add(quizItems.get(quizIndex).getId());
             if (++quizIndex >= quizItems.size()) {
-                quizService.createQuiz(
-                    category,
-                    currentUser.get().orElse(null),
-                    new Gson().toJson(result));
-                quizGrid.getDataProvider().refreshAll();
-                Notification.show("Quiz added", 3000, Notification.Position.BOTTOM_END)
-                        .addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-                close();
+                speichern.run();
+                return;
             }
-            
-            quizItem = quizItems.get(quizIndex);
-            questionSpan.setText(quizItem.getQuestion());
-            answerSpan.setText(quizItem.getAnswer());
+            zeigeFrage();
         });
-        
+
+        if (quizItems.isEmpty()) {
+            questionSpan.setText("In dieser Kategorie gibt es noch keine Fragen.");
+            endButton.setVisible(false);
+        } else {
+            zeigeFrage();
+        }
+
         VerticalLayout dialogLayout = new VerticalLayout(questionSpan, answerSpan);
         dialogLayout.setPadding(false);
         dialogLayout.setSpacing(false);
         add(dialogLayout);
         Responsive.dialog(this, "28em");
+    }
+
+    private void zeigeFrage() {
+        QuizItem item = quizItems.get(quizIndex);
+        questionSpan.setText(item.getQuestion());
+        answerSpan.setText(item.getAnswer());
     }
 }

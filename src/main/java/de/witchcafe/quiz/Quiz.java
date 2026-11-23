@@ -1,6 +1,8 @@
 package de.witchcafe.quiz;
 
 
+import java.time.Instant;
+
 import org.jspecify.annotations.Nullable;
 
 import de.witchcafe.auth.domain.AppUser;
@@ -41,12 +43,21 @@ public class Quiz {
     @Column(name = "result")
     private String result = "";
 
+    /** Zeitpunkt, an dem das Quiz gespielt wurde; leer bei alten Eintraegen (vor 2026-11-23). */
+    @Column(name = "gespielt_am")
+    private @Nullable Instant gespieltAm;
+
     protected Quiz() { // To keep Hibernate happy
     }
 
     public Quiz(String category, @Nullable AppUser user) {
     	setCategory(category);
     	setUser(user);
+    	this.gespieltAm = Instant.now();
+    }
+
+    public @Nullable Instant getGespieltAm() {
+        return gespieltAm;
     }
 
     public @Nullable Long getId() {

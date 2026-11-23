@@ -42,6 +42,15 @@ public class QuizService {
         return quizRepository.findAllBy(pageable).toList();
     }
 
+    /**
+     * Gelaufene Quizze einer Kategorie, neueste zuerst. Vorerst sieht jeder Benutzer alle;
+     * soll das spaeter eingeschraenkt werden (z.B. nur eigene), dann hier filtern.
+     */
+    @Transactional(readOnly = true)
+    public List<Quiz> resultate(String category) {
+        return quizRepository.findByCategoryOrderByIdDesc(category);
+    }
+
     /** Anonyme Nutzer (kein Login) speichern ihr Quiz ohne Benutzerbezug. */
     private @Nullable AppUser lookupUser(@Nullable AppUserInfo u) {
         return u == null ? null : appUserRepository.findById(u.getUserId().toString()).orElse(null);
