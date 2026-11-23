@@ -5,6 +5,7 @@ import java.util.OptionalLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -14,6 +15,7 @@ import de.witchcafe.billing.client.BillingException;
 import de.witchcafe.billing.client.IdempotencyKeys;
 import de.witchcafe.billing.client.InsufficientCreditException;
 import de.witchcafe.billing.client.api.BookingResponse;
+import de.witchcafe.billing.vaadin.BillingAds;
 
 /**
  * Anbindung des Quiz an witch-billing (gemeinsames Guthabenkonto aller Apps).
@@ -26,6 +28,9 @@ import de.witchcafe.billing.client.api.BookingResponse;
  * </ul>
  * Gebucht wird fuer den angemeldeten Benutzer (spielen geht nur mit Login). Importe ueber die
  * REST-API laufen am Billing vorbei, dort gibt es keinen Benutzer.
+ * <p>
+ * Wer im Minus ist, wird nicht gesperrt (Billing-Dienst mit {@code allow-debt}), sondern sieht
+ * Werbung: das Banner kommt von witch-billing-vaadin, die Werbepause beim Rundenstart von hier.
  */
 @Service
 public class QuizBilling {
@@ -37,9 +42,17 @@ public class QuizBilling {
     private static final Logger log = LoggerFactory.getLogger(QuizBilling.class);
 
     private final BillingClient billing;
+    private final BillingAds ads;
 
-    QuizBilling(BillingClient billing) {
+    @Autowired
+    QuizBilling(BillingClient billing, Optional<BillingAds> ads) {
         this.billing = billing;
+        this.ads = ads.orElse(null);
+    }
+
+    /** Ohne Werbung (Tests). */
+    QuizBilling(BillingClient billing) {
+        this(billing, Optional.empty());
     }
 
     /**
@@ -54,7 +67,11 @@ public class QuizBilling {
             return BookingResponse.NOT_BOOKED;
         }
         try {
-            return billing.charge(SPIEL, 1);
+            BookingResponse booking = billing.charge(SPIEL, 1);
+            if (ads != null) {
+                ads.afterCharge(booking);   // im Minus: Werbepause
+            }
+            return booking;
         } catch (InsufficientCreditException e) {
             throw e;
         } catch (BillingException e) {
@@ -78,7 +95,10 @@ public class QuizBilling {
         String key = IdempotencyKeys.next();
         Runnable reward = () -> {
             try {
-                billing.reward(userId.get(), feature, quantity, key);
+                BookingResponse booking = billing.reward(userId.get(), feature, quantity, key);
+                if (ads != null) {
+                    ads.afterReward(booking);
+                }
             } catch (BillingException e) {
                 log.warn("Gutschrift {} x{} fuer {} fehlgeschlagen ({}): {}",
                         feature, quantity, userId.get(), e.getCode(), e.getMessage());
