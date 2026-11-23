@@ -80,6 +80,7 @@ public class MultipleChoiceDialog extends QuizLaufDialog {
             }
         }
         beantwortet(item, korrekt, korrekt ? null : gewaehlt);
+        zeigeBildZurAntwort(item);
         Component erklaerung = erklaerung(item);
         if (erklaerung != null) {
             inhalt.add(erklaerung);

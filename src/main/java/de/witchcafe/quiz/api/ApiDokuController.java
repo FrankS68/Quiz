@@ -46,6 +46,12 @@ public class ApiDokuController {
                             + "Antwort: {\"angelegt\", \"fehler\": [...]}"),
             new Endpunkt("POST", "/api/fragen", "EDITOR",
                     "Dasselbe als Datei-Upload: multipart/form-data, Feld 'file' mit dem JSON-Array"),
+            new Endpunkt("POST", "/api/bilder", "EDITOR",
+                    "Bild hochladen: multipart/form-data, Feld 'file' (PNG, JPEG, WebP, GIF, max. 2 MB). "
+                            + "Antwort: {\"url\": \"/bilder/<id>\"}"),
+            new Endpunkt("PUT", "/api/fragen/{id}/bild", "EDITOR",
+                    "Bild einer Frage setzen/entfernen: {\"bild\": \"/bilder/<id>\" | \"https://...\" | \"\", "
+                            + "\"bild_mit_antwort\": true|false}. Antwort: die Frage"),
             new Endpunkt("GET", "/api/docs", "-", "Diese Uebersicht (ohne API-Key)"),
             new Endpunkt("GET", "/api/docs/anleitung", "-", "Anleitung mit Beispielen als Markdown (ohne API-Key)"),
             new Endpunkt("GET", "/api/docs/aenderungen", "-", "Aenderungsprotokoll der API (ohne API-Key)"),
@@ -89,7 +95,8 @@ public class ApiDokuController {
                 "antworten", "Liste der Antwortmoeglichkeiten, die richtige eingeschlossen",
                 "correct_answer", "die richtige Antwort, gleicher Text wie in 'antworten' (Pflicht)",
                 "beschreibung", "optional: Erklaerung, max. 300 Zeichen",
-                "bild", "optional: Bild zur Frage als http(s)-URL oder '/bilder/<id>' (hochgeladen in der Oberflaeche)",
+                "bild", "optional: Bild zur Frage als http(s)-URL oder '/bilder/<id>' (hochgeladen per POST /api/bilder oder in der Oberflaeche)",
+                "bild_mit_antwort", "optional, true: das Bild verraet die Loesung und erscheint erst mit der Antwort",
                 "beispiel", Map.of(
                         "thema", "Geografie/Deutschland/Fluesse",
                         "frage", "Welcher Fluss fliesst durch Koeln?",

@@ -17,5 +17,6 @@ public record FrageImport(
         List<String> antworten,
         @JsonProperty("correct_answer") String correctAnswer,
         String beschreibung,
-        String bild) {
+        String bild,
+        @JsonProperty("bild_mit_antwort") Boolean bildMitAntwort) {
 }

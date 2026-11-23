@@ -81,6 +81,7 @@ public class QuizItemService {
             var quizItem = new QuizItem(Kategorie.normalisiere(f.thema()), f.frage().trim(), f.correctAnswer().trim(), beschreibung);
             quizItem.setOptions(f.antworten() == null ? new ArrayList<>() : new ArrayList<>(f.antworten()));
             quizItem.setBild(f.bild());
+            quizItem.setBildMitAntwort(Boolean.TRUE.equals(f.bildMitAntwort()));
             quizItemRepository.save(quizItem);
             angelegt++;
         }
@@ -124,13 +125,14 @@ public class QuizItemService {
     /** Setzt oder entfernt (leer) das Bild einer Frage. */
     @Transactional
     @PreAuthorize(CAN_EDIT)
-    public QuizItem setzeBild(long frageId, String url) {
+    public QuizItem setzeBild(long frageId, String url, boolean mitAntwort) {
         String fehler = pruefeBildUrl(url);
         if (fehler != null) {
             throw new IllegalArgumentException(fehler);
         }
         QuizItem item = quizItemRepository.findById(frageId).orElseThrow();
         item.setBild(url);
+        item.setBildMitAntwort(mitAntwort);
         return quizItemRepository.saveAndFlush(item);
     }
 

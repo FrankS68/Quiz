@@ -41,12 +41,20 @@ public class SelbsttestDialog extends QuizLaufDialog {
         if (erklaerung != null) {
             erklaerung.setVisible(false);
         }
+        // Bild, das die Loesung zeigt, erst zusammen mit der Antwort
+        Component antwortBild = item.isBildMitAntwort() ? bild(item) : null;
+        if (antwortBild != null) {
+            antwortBild.setVisible(false);
+        }
 
         frage.getElement().addEventListener("click", e -> {
             antwort.setVisible(true);
             tipp.setText("Antwort antippen für die nächste Frage");
             if (erklaerung != null) {
                 erklaerung.setVisible(true);
+            }
+            if (antwortBild != null) {
+                antwortBild.setVisible(true);
             }
         });
         antwort.addClickListener(e -> {
@@ -56,6 +64,9 @@ public class SelbsttestDialog extends QuizLaufDialog {
 
         zeigeFrageMitBild(item, frage);
         inhalt.add(tipp, antwort);
+        if (antwortBild != null) {
+            inhalt.add(antwortBild);
+        }
         if (erklaerung != null) {
             inhalt.add(erklaerung);
         }

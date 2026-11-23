@@ -172,11 +172,19 @@ public abstract class QuizLaufDialog extends Dialog {
         return img;
     }
 
-    /** Fragetext und darunter ggf. das Bild in den {@link #inhalt}. */
+    /** Fragetext und darunter ggf. das Bild in den {@link #inhalt} (nicht, wenn es erst mit der Antwort kommt). */
     protected final void zeigeFrageMitBild(QuizItem item, Component frage) {
         inhalt.add(frage);
         Component b = bild(item);
-        if (b != null) {
+        if (b != null && !item.isBildMitAntwort()) {
+            inhalt.add(b);
+        }
+    }
+
+    /** Nach dem Aufloesen: das Bild, falls es die Loesung zeigt und deshalb erst jetzt kommt. */
+    protected final void zeigeBildZurAntwort(QuizItem item) {
+        Component b = bild(item);
+        if (b != null && item.isBildMitAntwort()) {
             inhalt.add(b);
         }
     }

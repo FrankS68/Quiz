@@ -103,6 +103,7 @@ public class LueckentextDialog extends QuizLaufDialog {
             text.getElement().setChild(pos, ergebnis(eingabe, l.loesung(), ok).getElement());
         }
         beantwortet(item, alleRichtig, alleRichtig ? null : String.join(" · ", eingaben));
+        zeigeBildZurAntwort(item);
         Component erklaerung = erklaerung(item);
         if (erklaerung != null) {
             inhalt.add(erklaerung);

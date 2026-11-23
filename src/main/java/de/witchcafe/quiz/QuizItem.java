@@ -48,6 +48,10 @@ public class QuizItem {
     @Column(name = "bild", length = BILD_MAX_LENGTH)
     private String bild = "";
 
+    /** true: Bild verraet die Loesung und wird erst zusammen mit der Antwort gezeigt. */
+    @Column(name = "bild_mit_antwort")
+    private Boolean bildMitAntwort = false;
+
     protected QuizItem() { // To keep Hibernate happy
     }
 
@@ -135,6 +139,14 @@ public class QuizItem {
 
 	public void setBild(String bild) {
 		this.bild = bild == null ? "" : bild.trim();
+	}
+
+	public boolean isBildMitAntwort() {
+		return Boolean.TRUE.equals(bildMitAntwort);
+	}
+
+	public void setBildMitAntwort(boolean bildMitAntwort) {
+		this.bildMitAntwort = bildMitAntwort;
 	}
 
 	public boolean hatBild() {

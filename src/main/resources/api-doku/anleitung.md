@@ -96,7 +96,8 @@ Jede Frage ist ein Objekt mit diesen Feldern:
 | `antworten`      | Liste von Texten| nein    | alle Antwortmöglichkeiten, **die richtige eingeschlossen**; Reihenfolge beliebig |
 | `correct_answer` | Text            | ja      | die richtige Antwort, **genau derselbe Text** wie in `antworten` |
 | `beschreibung`   | Text            | nein    | Erklärung zur Antwort, höchstens 300 Zeichen                  |
-| `bild`           | Text            | nein    | Bild zur Frage: `https://…`-URL oder `/bilder/<id>` (in der Oberfläche hochgeladen); leer = kein Bild |
+| `bild`           | Text            | nein    | Bild zur Frage: `https://…`-URL oder `/bilder/<id>` (hochgeladen, siehe unten); leer = kein Bild |
+| `bild_mit_antwort` | ja/nein       | nein    | `true`: Bild verrät die Lösung und erscheint erst mit der Antwort (Standard `false`: mit der Frage) |
 
 Regeln:
 
@@ -108,8 +109,8 @@ Regeln:
 - Weitere Felder (z. B. `id` aus einem Export, eigene Notizen) werden ignoriert. Ein Export aus
   `GET /api/fragen` lässt sich also direkt wieder hochladen, legt dann aber **neue** Fragen an (Dubletten).
 - Eine Datei darf Fragen mehrerer Kategorien enthalten.
-- Bilder lassen sich nur in der Oberfläche hochladen (Fragen → Bild-Symbol der Zeile). Im Import geht eine
-  externe `https://`-URL oder die `/bilder/<id>` eines schon hochgeladenen Bildes. Externe Bilder lädt der
+- Bilder lädt man mit `POST /api/bilder` oder in der Oberfläche hoch (Fragen → Bild-Symbol der Zeile). Im Import
+  geht eine externe `https://`-URL oder die `/bilder/<id>` eines schon hochgeladenen Bildes. Externe Bilder lädt der
   Browser des Spielers direkt von dort; die Rechte am Bild muss der Einsteller klären.
 - Die Datei muss ein Array sein (`[ … ]`), auch bei nur einer Frage.
 
@@ -156,6 +157,20 @@ Antwort:
 
 Fehlerhafte Einträge werden übersprungen und in `fehler` gemeldet (mit ihrer Position im Array), der Rest wird angelegt.
 Der Import prüft **nicht** auf Dubletten: sieh vorher mit `GET /api/fragen?kategorie=…` nach, was schon da ist.
+
+## Bilder zu Fragen (Rolle EDITOR oder ADMIN)
+
+Bild hochladen (PNG, JPEG, WebP oder GIF, höchstens 2 MB), dann einer Frage zuweisen:
+
+```
+curl -H "Authorization: Bearer $KEY" -F "file=@lichter.png;type=image/png" "$QUIZ/api/bilder"
+{"url": "/bilder/12"}
+
+curl -X PUT -H "Authorization: Bearer $KEY" -H "Content-Type: application/json"      -d '{"bild": "/bilder/12", "bild_mit_antwort": true}' "$QUIZ/api/fragen/163/bild"
+```
+
+`bild_mit_antwort: true` für Bilder, die die Lösung zeigen (etwa die gefragte Lichterführung): sie erscheinen
+erst nach dem Antworten. `"bild": ""` entfernt das Bild. Bilder sieht nur, wer angemeldet ist.
 
 ## Fehler
 

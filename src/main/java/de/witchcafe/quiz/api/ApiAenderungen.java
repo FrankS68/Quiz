@@ -19,6 +19,11 @@ public final class ApiAenderungen {
     public record Eintrag(String version, String datum, boolean inkompatibel, List<String> aenderungen) {}
 
     public static final List<Eintrag> PROTOKOLL = List.of(
+            new Eintrag("1.4.0", "2026-11-23", false, List.of(
+                    "Neu: POST /api/bilder (EDITOR/ADMIN) laedt ein Bild hoch und liefert {\"url\": \"/bilder/<id>\"}.",
+                    "Neu: PUT /api/fragen/{id}/bild (EDITOR/ADMIN) setzt oder entfernt das Bild einer Frage.",
+                    "Neues optionales Feld 'bild_mit_antwort' (Import, Export, PUT): true zeigt das Bild erst "
+                            + "zusammen mit der Antwort, fuer Bilder, die die Loesung verraten.")),
             new Eintrag("1.3.0", "2026-11-23", false, List.of(
                     "Fragen haben ein optionales Feld 'bild': externe http(s)-URL oder ein in der Oberflaeche "
                             + "hochgeladenes Bild ('/bilder/<id>'). Import (POST /api/fragen) nimmt es an, "

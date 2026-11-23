@@ -5,6 +5,7 @@ import java.io.InputStream;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
@@ -28,6 +29,7 @@ public class BildDialog extends Dialog {
     private final QuizItemService quizItemService;
     private final TextField url = new TextField("Bild-URL");
     private final Div vorschau = new Div();
+    private final Checkbox mitAntwort = new Checkbox("Bild erst mit der Antwort zeigen");
 
     public BildDialog(QuizItem item, QuizItemService quizItemService, Runnable nachSpeichern) {
         this.quizItemService = quizItemService;
@@ -42,6 +44,9 @@ public class BildDialog extends Dialog {
         url.setPlaceholder("https://… oder Datei hochladen");
         url.setHelperText("Externe https-URL oder hochgeladenes Bild (/bilder/…). Leer = kein Bild.");
         url.addValueChangeListener(e -> zeigeVorschau());
+
+        mitAntwort.setValue(item.isBildMitAntwort());
+        mitAntwort.setHelperText("Für Bilder, die die Lösung verraten (z. B. die gefragten Lichter)");
 
         MemoryBuffer puffer = new MemoryBuffer();
         Upload upload = new Upload(puffer);
@@ -62,13 +67,13 @@ public class BildDialog extends Dialog {
         vorschau.setWidthFull();
         zeigeVorschau();
 
-        VerticalLayout layout = new VerticalLayout(frage, upload, url, vorschau);
+        VerticalLayout layout = new VerticalLayout(frage, upload, url, mitAntwort, vorschau);
         layout.setPadding(false);
         add(layout);
 
         Button speichern = new Button("Speichern", e -> {
             try {
-                quizItemService.setzeBild(item.getId(), url.getValue());
+                quizItemService.setzeBild(item.getId(), url.getValue(), mitAntwort.getValue());
                 Notification.show(url.getValue().isBlank() ? "Bild entfernt" : "Bild gespeichert",
                         3000, Notification.Position.BOTTOM_END).addThemeVariants(NotificationVariant.LUMO_SUCCESS);
                 nachSpeichern.run();
