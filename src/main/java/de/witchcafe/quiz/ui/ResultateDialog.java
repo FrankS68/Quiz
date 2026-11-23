@@ -40,7 +40,9 @@ public class ResultateDialog extends Dialog {
         }).setHeader("Benutzer").setAutoWidth(true);
         grid.addColumn(q -> q.getCategory().equals(category) ? "" : q.getCategory().substring(category.length() + 1).replace("/", " › "))
                 .setHeader("Bereich").setAutoWidth(true);
+        grid.addColumn(q -> q.getModus().titel()).setHeader("Art").setAutoWidth(true);
         grid.addColumn(q -> anzahlFragen(q.getResult())).setHeader("Fragen").setAutoWidth(true);
+        grid.addColumn(ResultateDialog::ergebnis).setHeader("Richtig").setAutoWidth(true);
         grid.setEmptyStateText("In dieser Kategorie wurde noch kein Quiz gespielt");
         grid.addThemeVariants(GridVariant.LUMO_NO_BORDER, GridVariant.LUMO_COMPACT);
         grid.setAllRowsVisible(resultate.size() <= 10);
@@ -50,7 +52,18 @@ public class ResultateDialog extends Dialog {
         add(grid);
 
         getFooter().add(new Button("Schliessen", e -> close()));
-        Responsive.dialog(this, "36em");
+        Responsive.dialog(this, "44em");
+    }
+
+    /** "7/10 (70 %)" bei bewerteten Laeufen, sonst leer. */
+    private static String ergebnis(Quiz q) {
+        Integer richtig = q.getRichtig();
+        String anzahl = anzahlFragen(q.getResult());
+        if (richtig == null || anzahl.equals("–")) {
+            return "";
+        }
+        int n = Integer.parseInt(anzahl);
+        return richtig + "/" + n + (n == 0 ? "" : " (" + Math.round(100f * richtig / n) + " %)");
     }
 
     /** Neue Eintraege speichern die IDs der gespielten Fragen als JSON-Array, alte nur "{}". */

@@ -22,17 +22,18 @@ public class QuizService {
         this.appUserRepository = appUserRepository;
     }
 
+    /**
+     * Speichert einen gespielten Lauf.
+     *
+     * @param result  IDs der gespielten Fragen als JSON-Array
+     * @param richtig Anzahl richtiger Antworten, {@code null} bei unbewerteten Laeufen
+     */
     @Transactional
-    public Quiz createQuiz(String c, @Nullable AppUserInfo u) {
+    public Quiz speichereLauf(String c, @Nullable AppUserInfo u, QuizModus modus, String result, @Nullable Integer richtig) {
         var quiz = new Quiz(c, lookupUser(u));
-        quizRepository.saveAndFlush(quiz);
-        return quiz;
-    }
-
-    @Transactional
-    public Quiz createQuiz(String c, @Nullable AppUserInfo u, String r) {
-        var quiz = new Quiz(c, lookupUser(u));
-        quiz.setResult(r);
+        quiz.setModus(modus);
+        quiz.setResult(result);
+        quiz.setRichtig(richtig);
         quizRepository.saveAndFlush(quiz);
         return quiz;
     }

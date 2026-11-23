@@ -9,6 +9,8 @@ import de.witchcafe.auth.domain.AppUser;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -47,6 +49,15 @@ public class Quiz {
     @Column(name = "gespielt_am")
     private @Nullable Instant gespieltAm;
 
+    /** Art des Laufs; leer bei alten Eintraegen (= Selbsttest). */
+    @Enumerated(EnumType.STRING)
+    @Column(name = "modus", length = 32)
+    private @Nullable QuizModus modus;
+
+    /** Anzahl richtig beantworteter Fragen; leer bei unbewerteten Laeufen (Selbsttest). */
+    @Column(name = "richtig")
+    private @Nullable Integer richtig;
+
     protected Quiz() { // To keep Hibernate happy
     }
 
@@ -58,6 +69,22 @@ public class Quiz {
 
     public @Nullable Instant getGespieltAm() {
         return gespieltAm;
+    }
+
+    public QuizModus getModus() {
+        return modus == null ? QuizModus.SELBSTTEST : modus;
+    }
+
+    public void setModus(QuizModus modus) {
+        this.modus = modus;
+    }
+
+    public @Nullable Integer getRichtig() {
+        return richtig;
+    }
+
+    public void setRichtig(@Nullable Integer richtig) {
+        this.richtig = richtig;
     }
 
     public @Nullable Long getId() {

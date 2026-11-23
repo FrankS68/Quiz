@@ -36,6 +36,7 @@ import de.witchcafe.quiz.KategorieService;
 import de.witchcafe.quiz.KategorieService.Info;
 import de.witchcafe.quiz.QuizBilling;
 import de.witchcafe.quiz.QuizItemService;
+import de.witchcafe.quiz.QuizModus;
 import de.witchcafe.quiz.QuizService;
 import de.witchcafe.ui.Responsive;
 import de.witchcafe.ui.ViewToolbar;
@@ -223,6 +224,10 @@ public class QuizListView extends VerticalLayout {
     }
 
     private void startQuiz(Info i) {
+        new ModusDialog(i.pfad(), modus -> startQuiz(i, modus)).open();
+    }
+
+    private void startQuiz(Info i, QuizModus modus) {
         // Runde ueber witch-billing buchen (Preis aus der Preisliste, quiz/spiel)
         try {
             BookingResponse booking = quizBilling.chargeRound();
@@ -237,7 +242,7 @@ public class QuizListView extends VerticalLayout {
             showBalance(e.getBalance());
             return;
         }
-        new QuizDialog(i.pfad(), quizService, quizItemService, currentUser, () -> { }).open();
+        QuizLaufDialog.fuer(modus, i.pfad(), quizService, quizItemService, currentUser).open();
     }
 
     private void showBalance(long credits) {
