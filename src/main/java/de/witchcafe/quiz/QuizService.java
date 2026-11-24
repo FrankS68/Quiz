@@ -22,17 +22,18 @@ public class QuizService {
         this.appUserRepository = appUserRepository;
     }
 
+    /**
+     * Speichert einen gespielten Lauf.
+     *
+     * @param result  IDs der gespielten Fragen als JSON-Array
+     * @param richtig Anzahl richtiger Antworten, {@code null} bei unbewerteten Laeufen
+     */
     @Transactional
-    public Quiz createQuiz(String c, @Nullable AppUserInfo u) {
+    public Quiz speichereLauf(String c, @Nullable AppUserInfo u, QuizModus modus, String result, @Nullable Integer richtig) {
         var quiz = new Quiz(c, lookupUser(u));
-        quizRepository.saveAndFlush(quiz);
-        return quiz;
-    }
-
-    @Transactional
-    public Quiz createQuiz(String c, @Nullable AppUserInfo u, String r) {
-        var quiz = new Quiz(c, lookupUser(u));
-        quiz.setResult(r);
+        quiz.setModus(modus);
+        quiz.setResult(result);
+        quiz.setRichtig(richtig);
         quizRepository.saveAndFlush(quiz);
         return quiz;
     }
@@ -40,6 +41,18 @@ public class QuizService {
     @Transactional(readOnly = true)
     public List<Quiz> list(Pageable pageable) {
         return quizRepository.findAllBy(pageable).toList();
+    }
+
+    /**
+     * Gelaufene Quizze einer Kategorie inkl. aller Unterkategorien, neueste zuerst.
+     * Vorerst sieht jeder Benutzer alle; soll das spaeter eingeschraenkt werden
+     * (z.B. nur eigene), dann hier filtern.
+     */
+    @Transactional(readOnly = true)
+    public List<Quiz> resultate(String pfad) {
+        return quizRepository.findImTeilbaum(pfad).stream()
+                .filter(q -> Kategorie.imTeilbaum(q.getCategory(), pfad))
+                .toList();
     }
 
     /** Anonyme Nutzer (kein Login) speichern ihr Quiz ohne Benutzerbezug. */

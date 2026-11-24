@@ -36,15 +36,22 @@ public class ApiDokuController {
 
     static final List<Endpunkt> ENDPUNKTE = List.of(
             new Endpunkt("GET", "/api/kategorien", "USER",
-                    "Alle Kategorien (Themen) mit Anzahl der Fragen: [{\"name\", \"anzahl\"}]"),
+                    "Kategorienbaum: [{\"name\" (voller Pfad), \"oberkategorie\", \"anzahl\" (eigene Fragen), "
+                            + "\"anzahlGesamt\" (inkl. Unterbereiche), \"schlagworte\"}]"),
             new Endpunkt("GET", "/api/fragen", "USER",
-                    "Alle Fragen inkl. richtiger Antwort; ?kategorie=<name> filtert auf eine Kategorie "
-                            + "(exakter Name wie in /api/kategorien). Format wie beim Import, zusaetzlich 'id'."),
+                    "Alle Fragen inkl. richtiger Antwort; ?kategorie=<pfad> filtert auf eine Kategorie inkl. ihrer "
+                            + "Unterbereiche (Pfad wie in /api/kategorien). Format wie beim Import, zusaetzlich 'id'."),
             new Endpunkt("POST", "/api/fragen", "EDITOR",
                     "Fragenkatalog importieren, Body: JSON-Array von Fragen (Content-Type application/json). "
                             + "Antwort: {\"angelegt\", \"fehler\": [...]}"),
             new Endpunkt("POST", "/api/fragen", "EDITOR",
                     "Dasselbe als Datei-Upload: multipart/form-data, Feld 'file' mit dem JSON-Array"),
+            new Endpunkt("POST", "/api/bilder", "EDITOR",
+                    "Bild hochladen: multipart/form-data, Feld 'file' (PNG, JPEG, WebP, GIF, max. 2 MB). "
+                            + "Antwort: {\"url\": \"/bilder/<id>\"}"),
+            new Endpunkt("PUT", "/api/fragen/{id}/bild", "EDITOR",
+                    "Bild einer Frage setzen/entfernen: {\"bild\": \"/bilder/<id>\" | \"https://...\" | \"\", "
+                            + "\"bild_mit_antwort\": true|false}. Antwort: die Frage"),
             new Endpunkt("GET", "/api/docs", "-", "Diese Uebersicht (ohne API-Key)"),
             new Endpunkt("GET", "/api/docs/anleitung", "-", "Anleitung mit Beispielen als Markdown (ohne API-Key)"),
             new Endpunkt("GET", "/api/docs/aenderungen", "-", "Aenderungsprotokoll der API (ohne API-Key)"),
@@ -61,8 +68,10 @@ public class ApiDokuController {
         doku.put("version", neuester.version());
         doku.put("stand", neuester.datum());
         doku.put("beschreibung", "Fragen und Kategorien des Quiz lesen und neue Fragenkataloge importieren. "
+                + "Kategorien sind hierarchisch (Oberthema/Zertifikat/Abschnitt, getrennt durch '/') und haben "
+                + "suchbare Schlagworte, die Editoren in der Oberflaeche pflegen. "
                 + "Eine Frage hat ein Thema (= Kategorie), den Fragetext, Antwortmoeglichkeiten, die richtige Antwort "
-                + "und optional eine Erklaerung. Quiz spielen und Ergebnisse ansehen geht nur in der Oberflaeche.");
+                + "und optional eine Erklaerung und ein Bild. Quiz spielen und Ergebnisse ansehen geht nur in der Oberflaeche.");
         doku.put("authentifizierung", Map.of(
                 "header", "Authorization: Bearer <API-Key>",
                 "giltFuer", "alle /api/** ausser /api/docs/**",
@@ -81,13 +90,15 @@ public class ApiDokuController {
                 "frage", "jedes Array-Element hat das Format aus 'frageFormat'; weitere Felder (z.B. 'id') werden ignoriert",
                 "mehrereKategorien", "erlaubt; neue Kategorien entstehen automatisch aus 'thema'"));
         doku.put("frageFormat", Map.of(
-                "thema", "Kategorie (Pflicht)",
+                "thema", "Kategorie als Pfad, Ebenen mit '/' getrennt, z.B. \"Drohnen/EU A1-A3/Luftrecht\" (Pflicht)",
                 "frage", "Fragetext (Pflicht)",
                 "antworten", "Liste der Antwortmoeglichkeiten, die richtige eingeschlossen",
                 "correct_answer", "die richtige Antwort, gleicher Text wie in 'antworten' (Pflicht)",
                 "beschreibung", "optional: Erklaerung, max. 300 Zeichen",
+                "bild", "optional: Bild zur Frage als http(s)-URL oder '/bilder/<id>' (hochgeladen per POST /api/bilder oder in der Oberflaeche)",
+                "bild_mit_antwort", "optional, true: das Bild verraet die Loesung und erscheint erst mit der Antwort",
                 "beispiel", Map.of(
-                        "thema", "Geografie",
+                        "thema", "Geografie/Deutschland/Fluesse",
                         "frage", "Welcher Fluss fliesst durch Koeln?",
                         "antworten", List.of("Main", "Rhein", "Elbe", "Mosel"),
                         "correct_answer", "Rhein",

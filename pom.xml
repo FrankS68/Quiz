@@ -25,7 +25,7 @@
         <witch-ui.version>1.3.0</witch-ui.version>
         <!-- feste witch-auth-Version statt 1.0.0-SNAPSHOT (Secret-Wartung); SNAPSHOTs aus GitHub
              Packages blieben im Docker-Build wegen veralteter Metadaten alt -->
-        <witch-auth.version>1.1.0</witch-auth.version>
+        <witch-auth.version>1.1.3</witch-auth.version>
     </properties>
 
     <dependencies>
@@ -43,18 +43,26 @@
             <groupId>de.witchcafe</groupId>
             <artifactId>witch-mastodon</artifactId>
         </dependency>
-        <!-- Gemeinsames Guthabenkonto (witch-billing): Runden zaehlen, Beitraege gutschreiben.
+        <!-- Gemeinsames Guthabenkonto (witch-billing): Runden zaehlen, Beitraege gutschreiben;
+             wer im Minus ist, sieht Werbung statt gesperrt zu werden (bringt den Client mit).
              Ohne witch-billing.url ausgeschaltet, dann ist alles frei. -->
         <dependency>
             <groupId>de.witchcafe</groupId>
-            <artifactId>witch-billing-client</artifactId>
-            <version>0.1.0</version>
+            <artifactId>witch-billing-vaadin</artifactId>
+            <version>0.3.0</version>
         </dependency>
         <!-- OpenAPI-Beschreibung der REST-API unter /api/docs/openapi.json (wie knownet) -->
         <dependency>
             <groupId>org.springdoc</groupId>
             <artifactId>springdoc-openapi-starter-webmvc-api</artifactId>
             <version>3.1.0</version>
+        </dependency>
+        <!-- KI-Fragengenerator (Kategorien anlegen/erweitern): Claude ueber die Anthropic-API.
+             Mistral, OpenAI und Gemini werden per RestClient angesprochen. -->
+        <dependency>
+            <groupId>com.anthropic</groupId>
+            <artifactId>anthropic-java</artifactId>
+            <version>3.12.0</version>
         </dependency>
     </dependencies>
 

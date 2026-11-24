@@ -39,6 +39,19 @@ public class QuizItem {
     @Column(name = "description", length = DESCRIPTION_MAX_LENGTH)
     private String description = "";
 
+    public static final int BILD_MAX_LENGTH = 1000;
+
+    /**
+     * Optionales Bild zur Frage: externe URL (https://...) oder ein hochgeladenes Bild
+     * ({@code /bilder/<id>}, siehe {@link Bild}). Leer = kein Bild.
+     */
+    @Column(name = "bild", length = BILD_MAX_LENGTH)
+    private String bild = "";
+
+    /** true: Bild verraet die Loesung und wird erst zusammen mit der Antwort gezeigt. */
+    @Column(name = "bild_mit_antwort")
+    private Boolean bildMitAntwort = false;
+
     protected QuizItem() { // To keep Hibernate happy
     }
 
@@ -117,6 +130,27 @@ public class QuizItem {
 
 	public void setTags(ArrayList<String> tags) {
 		this.tags = tags;
+	}
+
+	/** Bild-URL oder leer (auch bei alten Zeilen, in denen die Spalte noch NULL ist). */
+	public String getBild() {
+		return bild == null ? "" : bild;
+	}
+
+	public void setBild(String bild) {
+		this.bild = bild == null ? "" : bild.trim();
+	}
+
+	public boolean isBildMitAntwort() {
+		return Boolean.TRUE.equals(bildMitAntwort);
+	}
+
+	public void setBildMitAntwort(boolean bildMitAntwort) {
+		this.bildMitAntwort = bildMitAntwort;
+	}
+
+	public boolean hatBild() {
+		return !getBild().isEmpty();
 	}
 
 	public String getCategory() {
